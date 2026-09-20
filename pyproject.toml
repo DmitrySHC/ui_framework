@@ -1,0 +1,46 @@
+[project]
+name = "ui-framework"
+version = "0.0.1"
+description = "Фреймворк автотестирования: Chrome, Playwright, Page Object, элементы и слои steps/asserts"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic>=2.13.5",
+    "playwright>=1.55.0",
+]
+
+[dependency-groups]
+dev = ["pytest==9.1.1", "ruff", "mypy"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ui_framework"]
+
+[tool.pytest.ini_options]
+addopts = "-ra --strict-markers"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "BLE", "TRY", "RET", "RUF", "C4", "PERF"]
+ignore = [
+    "TRY003",  # текст ошибки собирается на месте — f-строки с контекстом читаемее классов-исключений на каждый случай
+    "RUF001",  # кириллица в строках и комментариях — норма проекта
+    "RUF002",
+    "RUF003",
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["ui_framework"]
+known-local-folder = ["demo"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+ignore_missing_imports = true

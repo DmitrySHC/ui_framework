@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Sample widgets</title>
+  </head>
+  <body>
+    <h1 id="heading">Widgets</h1>
+    <p id="status">Ready</p>
+    <a id="docs" href="https://example.com/docs">Docs</a>
+    <label>User <input id="username" name="user" /></label>
+    <label><input id="agree" type="checkbox" /> Agree</label>
+    <label><input id="color-red" type="radio" name="color" value="red" /> Red</label>
+    <label><input id="color-blue" type="radio" name="color" value="blue" /> Blue</label>
+    <select id="country">
+      <option value="ru">Russia</option>
+      <option value="us">USA</option>
+    </select>
+    <img
+      id="logo"
+      src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
+      alt="Logo"
+    />
+    <button id="submit" type="button" onclick="document.getElementById('status').textContent='Clicked'">
+      Go
+    </button>
+    <button id="frozen" type="button" disabled>Nope</button>
+    <div id="secret" style="display:none">hidden</div>
+  </body>
+</html>
