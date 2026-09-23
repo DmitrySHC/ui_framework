@@ -37,37 +37,37 @@ class GroupBuildingApp(StepsGroup):
         self.app = SampleApp(driver, base_url)
 
 
-def test_app_exposes_steps_and_asserts(idle_driver: ChromeDriver) -> None:
+def test_app_exposes_steps_and_asserts(idle_driver: ChromeDriver):
     app = SampleApp(idle_driver, BASE)
     assert isinstance(app.steps, Steps)
     assert isinstance(app.asserts, Asserts)
     assert set(vars(app)) == {"steps", "asserts"}
 
 
-def test_root_allows_extra_attribute(idle_driver: ChromeDriver) -> None:
+def test_root_allows_extra_attribute(idle_driver: ChromeDriver):
     app = AppWithHelper(idle_driver, BASE)
     assert app.timeout == 5
     assert isinstance(app.steps, Steps)
     assert isinstance(app.asserts, Asserts)
 
 
-def test_root_does_not_require_asserts(idle_driver: ChromeDriver) -> None:
+def test_root_does_not_require_asserts(idle_driver: ChromeDriver):
     app = AppWithoutAsserts(idle_driver, BASE)
     assert isinstance(app.steps, Steps)
     assert not hasattr(app, "asserts")
 
 
-def test_nested_group_rejects_plain_value(idle_driver: ChromeDriver) -> None:
+def test_nested_group_rejects_plain_value(idle_driver: ChromeDriver):
     with pytest.raises(LayerError, match="may only hold"):
         OuterWithNestedPlain(idle_driver, BASE)
 
 
-def test_nested_aggregator_cannot_hold_asserts(idle_driver: ChromeDriver) -> None:
+def test_nested_aggregator_cannot_hold_asserts(idle_driver: ChromeDriver):
     with pytest.raises(LayerError, match="root steps group"):
         GroupBuildingApp(idle_driver, BASE)
 
 
-def test_app_drives_scenario(driver: ChromeDriver) -> None:
+def test_app_drives_scenario(driver: ChromeDriver):
     app = SampleApp(driver, BASE)
     app.steps.widgets.open().type_username("alice")
     app.asserts.widgets.heading_is("Widgets").username_is("alice").status_is("Ready")

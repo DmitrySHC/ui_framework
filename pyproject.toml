@@ -44,3 +44,8 @@ known-local-folder = ["demo"]
 python_version = "3.12"
 strict = true
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["tests.*", "demo.tests", "demo.tests.*"]
+disallow_untyped_defs = false
+disallow_incomplete_defs = false

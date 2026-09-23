@@ -5,7 +5,7 @@ from .sample_page import SamplePage
 _BASE = "https://example.com"
 
 
-def test_select_by_text_and_value(driver: ChromeDriver) -> None:
+def test_select_by_text_and_value(driver: ChromeDriver):
     page = SamplePage(driver, _BASE)
     page.open()
     page.country.select_by_text("USA")

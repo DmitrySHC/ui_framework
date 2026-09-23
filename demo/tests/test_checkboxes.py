@@ -1,7 +1,7 @@
 from demo.app import TheInternet
 
 
-def test_toggle_checkboxes(app: TheInternet) -> None:
+def test_toggle_checkboxes(app: TheInternet):
     app.steps.forms.checkboxes.open()
     app.asserts.forms.checkboxes.states_are(False, True)
 

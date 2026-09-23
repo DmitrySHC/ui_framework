@@ -5,7 +5,7 @@ from .sample_page import SamplePage
 _BASE = "https://example.com"
 
 
-def test_text_content(driver: ChromeDriver) -> None:
+def test_text_content(driver: ChromeDriver):
     page = SamplePage(driver, _BASE)
     page.open()
     assert page.status.text == "Ready"

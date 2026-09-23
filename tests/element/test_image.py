@@ -5,7 +5,7 @@ from .sample_page import SamplePage
 _BASE = "https://example.com"
 
 
-def test_src_and_alt(driver: ChromeDriver) -> None:
+def test_src_and_alt(driver: ChromeDriver):
     page = SamplePage(driver, _BASE)
     page.open()
     assert page.logo.alt == "Logo"

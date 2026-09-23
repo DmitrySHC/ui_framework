@@ -3,7 +3,7 @@ from ui_framework.driver import ChromeDriver
 from .the_internet import BASE_URL, LoginPage, SecurePage
 
 
-def test_login_and_logout(driver: ChromeDriver) -> None:
+def test_login_and_logout(driver: ChromeDriver):
     login = LoginPage(driver, BASE_URL).open()
     login.username.fill("tomsmith")
     login.password.fill("SuperSecretPassword!")

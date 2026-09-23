@@ -13,22 +13,28 @@ demo/
     secure.py            SecurePage
     dropdown.py          DropdownPage
     checkboxes.py        CheckboxesPage
+    elements/
+      person_row.py      PersonRow(BaseElement)
+    tables.py            TablesPage
   steps/                 действия; шаг хранит только страницы
     auth.py              AuthSteps: LoginPage + SecurePage
     dropdown.py          DropdownSteps
     checkboxes.py        CheckboxesSteps
     forms.py             FormsSteps(StepsGroup) — под-агрегатор
-    __init__.py          Steps(StepsGroup): auth, forms
+    tables.py            TablesSteps
+    __init__.py          Steps(StepsGroup): auth, forms, tables
   asserts/               проверки; каждая создаёт шаг своего домена
     auth.py              AuthAsserts → AuthSteps
     dropdown.py          DropdownAsserts → DropdownSteps
     checkboxes.py        CheckboxesAsserts → CheckboxesSteps
     forms.py             FormsAsserts(AssertsGroup)
-    __init__.py          Asserts(AssertsGroup): auth, forms
+    tables.py            TablesAsserts → TablesSteps
+    __init__.py          Asserts(AssertsGroup): auth, forms, tables
   tests/                 только app.steps.* и app.asserts.*
     test_login.py
     test_dropdown.py
     test_checkboxes.py
+    test_tables.py
     test_architecture.py статическая проверка слоёв всего каталога demo/
 ```
 

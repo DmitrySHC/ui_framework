@@ -5,7 +5,7 @@ from .sample_page import SamplePage
 _BASE = "https://example.com"
 
 
-def test_select_radio(driver: ChromeDriver) -> None:
+def test_select_radio(driver: ChromeDriver):
     page = SamplePage(driver, _BASE)
     page.open()
     assert page.color_red.is_selected is False

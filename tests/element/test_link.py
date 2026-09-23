@@ -5,7 +5,7 @@ from .sample_page import SamplePage
 _BASE = "https://example.com"
 
 
-def test_href(driver: ChromeDriver) -> None:
+def test_href(driver: ChromeDriver):
     page = SamplePage(driver, _BASE)
     page.open()
     assert page.docs.href is not None

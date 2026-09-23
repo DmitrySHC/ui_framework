@@ -5,7 +5,7 @@ from .the_internet import BASE_URL, DropdownPage, LoginPage, StubbedPage
 STUB_BODY = "<!DOCTYPE html><html><body><h1 id='stubbed'>stubbed response</h1></body></html>"
 
 
-def test_intercept_records_document_request(driver: ChromeDriver) -> None:
+def test_intercept_records_document_request(driver: ChromeDriver):
     login = LoginPage(driver, BASE_URL)
     with driver.network.intercept("**/login") as log:
         login.open()
@@ -15,14 +15,14 @@ def test_intercept_records_document_request(driver: ChromeDriver) -> None:
     assert "the-internet.herokuapp.com/login" in seen.url
 
 
-def test_stub_replaces_document(driver: ChromeDriver) -> None:
+def test_stub_replaces_document(driver: ChromeDriver):
     page = StubbedPage(driver, BASE_URL)
     with driver.network.stub("**/dropdown", body=STUB_BODY):
         page.open()
         assert page.heading.text == "stubbed response"
 
 
-def test_stub_is_removed_after_context(driver: ChromeDriver) -> None:
+def test_stub_is_removed_after_context(driver: ChromeDriver):
     stubbed = StubbedPage(driver, BASE_URL)
     with driver.network.stub("**/dropdown", body=STUB_BODY):
         stubbed.open()
@@ -32,7 +32,7 @@ def test_stub_is_removed_after_context(driver: ChromeDriver) -> None:
     assert "Dropdown" in real.heading.text
 
 
-def test_rewrite_sends_request_to_another_url(driver: ChromeDriver) -> None:
+def test_rewrite_sends_request_to_another_url(driver: ChromeDriver):
     login = LoginPage(driver, BASE_URL)
     dropdown = DropdownPage(driver, BASE_URL)
     with driver.network.rewrite("**/dropdown", to=login.url()):

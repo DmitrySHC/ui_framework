@@ -25,20 +25,20 @@ class UserPage(BasePage):
     pass
 
 
-def test_open_home(driver: ChromeDriver) -> None:
+def test_open_home(driver: ChromeDriver):
     page = HomePage(driver, _BASE)
     page.open()
     assert page.current_url.startswith(_BASE)
     assert page.title
 
 
-def test_open_with_placeholder(driver: ChromeDriver) -> None:
+def test_open_with_placeholder(driver: ChromeDriver):
     page = UserPage(driver, _BASE)
     page.open(user="alice")
     assert "login/alice" in page.current_url
 
 
-def test_refresh_keeps_url(driver: ChromeDriver) -> None:
+def test_refresh_keeps_url(driver: ChromeDriver):
     page = LoginPage(driver, _BASE)
     page.open()
     before = page.current_url
@@ -46,11 +46,11 @@ def test_refresh_keeps_url(driver: ChromeDriver) -> None:
     assert page.current_url == before
 
 
-def test_undecorated_page_raises(driver: ChromeDriver) -> None:
+def test_undecorated_page_raises(driver: ChromeDriver):
     with pytest.raises(PageError, match="@url"):
         UndecoratedPage(driver, _BASE)
 
 
-def test_wait_loaded_returns_self(driver: ChromeDriver) -> None:
+def test_wait_loaded_returns_self(driver: ChromeDriver):
     page = HomePage(driver, _BASE)
     assert page.wait_loaded() is page

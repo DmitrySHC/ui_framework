@@ -47,21 +47,21 @@ def _rules(root: Path) -> set[str]:
     return {violation.rule for violation in check_project(root)}
 
 
-def test_widget_names_match_element_exports() -> None:
+def test_widget_names_match_element_exports():
     exceptions = {"ConditionNotMatchedException", "ElementError"}
     assert set(element.__all__) - exceptions == set(WIDGET_NAMES)
 
 
-def test_demo_project_is_clean() -> None:
+def test_demo_project_is_clean():
     # Дублирует demo/tests/test_architecture.py намеренно: фреймворк проверяет чекер на живом проекте.
     assert check_project(DEMO_ROOT) == []
 
 
-def test_clean_project_has_no_violations(tmp_path: Path) -> None:
+def test_clean_project_has_no_violations(tmp_path: Path):
     assert check_project(_project(tmp_path)) == []
 
 
-def test_assert_outside_asserts(tmp_path: Path) -> None:
+def test_assert_outside_asserts(tmp_path: Path):
     _project(tmp_path)
     _write(
         tmp_path,
@@ -74,7 +74,7 @@ def test_assert_outside_asserts(tmp_path: Path) -> None:
     assert _rules(tmp_path) == {"assert"}
 
 
-def test_assertion_error_outside_asserts(tmp_path: Path) -> None:
+def test_assertion_error_outside_asserts(tmp_path: Path):
     _project(tmp_path)
     _write(
         tmp_path,
@@ -87,19 +87,19 @@ def test_assertion_error_outside_asserts(tmp_path: Path) -> None:
     assert _rules(tmp_path) == {"assert"}
 
 
-def test_widgets_outside_pages(tmp_path: Path) -> None:
+def test_widgets_outside_pages(tmp_path: Path):
     _project(tmp_path)
     _write(tmp_path, "steps/extra.py", "from ui_framework import Button\n")
     assert _rules(tmp_path) == {"widgets"}
 
 
-def test_element_module_outside_pages(tmp_path: Path) -> None:
+def test_element_module_outside_pages(tmp_path: Path):
     _project(tmp_path)
     _write(tmp_path, "steps/extra.py", "import ui_framework.element as widgets\n")
     assert _rules(tmp_path) == {"widgets"}
 
 
-def test_layer_class_in_wrong_directory(tmp_path: Path) -> None:
+def test_layer_class_in_wrong_directory(tmp_path: Path):
     _project(tmp_path)
     _write(
         tmp_path,
@@ -116,7 +116,7 @@ def test_layer_class_in_wrong_directory(tmp_path: Path) -> None:
     assert _rules(tmp_path) == {"placement"}
 
 
-def test_root_aggregator_is_allowed(tmp_path: Path) -> None:
+def test_root_aggregator_is_allowed(tmp_path: Path):
     _project(tmp_path)
     _write(
         tmp_path,
@@ -132,7 +132,7 @@ def test_root_aggregator_is_allowed(tmp_path: Path) -> None:
     assert check_project(tmp_path) == []
 
 
-def test_root_aggregator_may_construct_asserts(tmp_path: Path) -> None:
+def test_root_aggregator_may_construct_asserts(tmp_path: Path):
     _project(tmp_path)
     _write(
         tmp_path,
@@ -199,7 +199,7 @@ def test_root_aggregator_may_construct_asserts(tmp_path: Path) -> None:
     assert check_project(tmp_path) == []
 
 
-def test_root_aggregator_outside_root(tmp_path: Path) -> None:
+def test_root_aggregator_outside_root(tmp_path: Path):
     _project(tmp_path)
     _write(
         tmp_path,
@@ -215,7 +215,7 @@ def test_root_aggregator_outside_root(tmp_path: Path) -> None:
     assert _rules(tmp_path) == {"placement"}
 
 
-def test_page_built_outside_step_constructor(tmp_path: Path) -> None:
+def test_page_built_outside_step_constructor(tmp_path: Path):
     _project(tmp_path)
     _write(
         tmp_path,
@@ -234,7 +234,7 @@ def test_page_built_outside_step_constructor(tmp_path: Path) -> None:
     assert _rules(tmp_path) == {"construction"}
 
 
-def test_driver_access_outside_pages(tmp_path: Path) -> None:
+def test_driver_access_outside_pages(tmp_path: Path):
     _project(tmp_path)
     _write(
         tmp_path,
@@ -251,7 +251,7 @@ def test_driver_access_outside_pages(tmp_path: Path) -> None:
     assert _rules(tmp_path) == {"driver"}
 
 
-def test_tests_use_only_entry_point(tmp_path: Path) -> None:
+def test_tests_use_only_entry_point(tmp_path: Path):
     _project(tmp_path)
     _write(
         tmp_path,
@@ -267,7 +267,7 @@ def test_tests_use_only_entry_point(tmp_path: Path) -> None:
     assert _rules(tmp_path) == {"tests", "construction"}
 
 
-def test_ensure_architecture_lists_violations(tmp_path: Path) -> None:
+def test_ensure_architecture_lists_violations(tmp_path: Path):
     _project(tmp_path)
     _write(tmp_path, "steps/extra.py", "from ui_framework import Button\n")
     with pytest.raises(ArchitectureError, match=r"layer violations \(1\)") as info:
