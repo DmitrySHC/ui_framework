@@ -53,7 +53,7 @@ def test_widget_names_match_element_exports():
 
 
 def test_demo_project_is_clean():
-    # Дублирует demo/tests/test_architecture.py намеренно: фреймворк проверяет чекер на живом проекте.
+    # Same check as demo/tests/test_architecture.py: the framework runs the checker on the live demo.
     assert check_project(DEMO_ROOT) == []
 
 

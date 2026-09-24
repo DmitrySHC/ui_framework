@@ -45,11 +45,10 @@ class DriverLogs:
             browser=browser_name,
             stamp=datetime.now().strftime(LOG_DIR_TIMESTAMP_FORMAT),
             pid=os.getpid(),
-            # Счётчик спасает от коллизии, если в одну секунду создали два драйвера.
+            # Avoid a name clash when two drivers start in the same second.
             index=next(_counter),
         )
-        # Путь обязан быть абсолютным: процесс браузера стартует со своим рабочим
-        # каталогом, и относительный --log-file уедет не туда.
+        # Chrome starts with its own working directory, so the log path must be absolute.
         directory = logs_root.expanduser().resolve() / name
         directory.mkdir(parents=True, exist_ok=True)
         return directory

@@ -1,2 +1,2 @@
-#: Используется, когда указан is_mobile=True без явного device.
+#: Used when is_mobile is true and device is omitted.
 DEFAULT_DEVICE = "Pixel 5"

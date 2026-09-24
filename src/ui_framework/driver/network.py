@@ -68,7 +68,7 @@ class NetworkInterceptor:
         def wrapped(route: Route) -> None:
             try:
                 callback(route)
-            except Exception as error:  # noqa: BLE001 - колбэк не должен повесить страницу: пропускаем запрос, жалуемся после with
+            except Exception as error:  # noqa: BLE001 - keep the page moving, then raise after the with block
                 errors.append(error)
                 with suppress(Exception):
                     route.continue_()

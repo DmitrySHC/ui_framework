@@ -160,7 +160,7 @@ class BaseElement:
         seconds = DEFAULT_ELEMENT_WAIT if timeout is None else timeout
         deadline = time.monotonic() + seconds
         while time.monotonic() < deadline:
-            # Пока элемент не стабилен, Playwright может бросить strict-mode или detached — пробуем дальше.
+            # The element may be detached or ambiguous for a moment. Keep polling.
             with suppress(PlaywrightError):
                 if predicate():
                     return

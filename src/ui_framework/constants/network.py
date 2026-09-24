@@ -1,6 +1,6 @@
 DEFAULT_NETWORK_WAIT = 10.0
 
-#: Глоб «все запросы» — используется, когда intercept/stub/rewrite вызваны без шаблонов.
+#: Matches every request. Used when intercept, stub, or rewrite is called without a pattern.
 ALL_URLS = "**/*"
 
 DEFAULT_STUB_STATUS = 200

@@ -40,7 +40,7 @@ class Violation:
 class _Module:
     path: Path
     tree: ast.Module
-    #: Первый каталог относительно корня проекта; "" для файлов в корне.
+    #: First directory under the project root. Empty string means the file sits at the root.
     top_dir: str
 
 
@@ -84,7 +84,7 @@ class _ClassTable:
     def layer_of(self, name: str) -> Layer | None:
         if name in self._cache:
             return self._cache[name]
-        self._cache[name] = None  # защита от циклов в наследовании
+        self._cache[name] = None  # break inheritance cycles
         layer: Layer | None = None
         for base in self._bases.get(name, ()):
             layer = self.layer_of(base)

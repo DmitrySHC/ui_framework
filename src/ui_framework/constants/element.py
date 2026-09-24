@@ -1,6 +1,6 @@
 DEFAULT_ELEMENT_WAIT = 10.0
 
-#: Локатор -> селектор Playwright. Ключи — допустимые kwargs BaseElement.
+#: Locator field to a Playwright selector. Keys are the allowed BaseElement arguments.
 LOCATOR_TEMPLATES: dict[str, str] = {
     "css": "{}",
     "id": "#{}",
@@ -11,7 +11,7 @@ LOCATOR_TEMPLATES: dict[str, str] = {
 }
 LOCATOR_FIELDS = tuple(LOCATOR_TEMPLATES)
 
-#: Поиск через ``page.get_by_*``, не через CSS-шаблон.
+#: Found with page.get_by_*, not a CSS template.
 QUERY_LOCATORS: tuple[str, ...] = (
     "role",
     "label",
@@ -21,7 +21,7 @@ QUERY_LOCATORS: tuple[str, ...] = (
     "alt_text",
     "title",
 )
-#: ``exact`` имеет смысл только у этих способов поиска.
+#: exact is valid only for these locator fields.
 EXACT_LOCATORS: frozenset[str] = frozenset({"role", "label", "placeholder", "text", "alt_text", "title"})
 
 WAIT_TIMEOUT_MESSAGE = "{label}: timed out waiting for {what} after {seconds}s"

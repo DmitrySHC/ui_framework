@@ -14,7 +14,7 @@ class Layered(metaclass=LayerMeta):
     """A class with a layer. LayerMeta checks where its instances are built."""
 
     _layer: ClassVar[Layer | None] = None
-    #: True у страниц и компонентов, созданных внутри конструктора шага, проверки или агрегатора.
+    #: True for a page or component built inside a step, check, or group constructor.
     _layered: bool = False
 
     def _layer_built(self) -> None:

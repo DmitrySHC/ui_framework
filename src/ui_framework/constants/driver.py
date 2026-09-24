@@ -16,12 +16,12 @@ DEFAULT_SCRIPT_TIMEOUT = 30.0
 DEFAULT_PAGE_LOAD_STRATEGY: PageLoadStrategy = "normal"
 DEFAULT_TRACE_MODE: TraceMode = "off"
 
-#: Чего ждут page.goto и page.reload для каждой стратегии загрузки.
+#: Playwright wait_until value for each page load strategy.
 GOTO_WAIT: dict[PageLoadStrategy, GotoWait] = {
     "normal": "load",
     "eager": "domcontentloaded",
     "none": "commit",
 }
 
-#: Шаг опроса для ожиданий, которые фреймворк крутит сам (условия элементов, журнал сети).
+#: Poll interval for waits the framework runs itself, such as element state and the network log.
 POLL_INTERVAL = 0.05

@@ -1,7 +1,7 @@
 [project]
 name = "ui-framework"
 version = "0.0.1"
-description = "Фреймворк автотестирования: Chrome, Playwright, Page Object, элементы и слои steps/asserts"
+description = "UI test framework: Chrome, Playwright, page objects, elements, and steps/asserts layers"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -32,8 +32,8 @@ target-version = "py312"
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM", "BLE", "TRY", "RET", "RUF", "C4", "PERF"]
 ignore = [
-    "TRY003",  # текст ошибки собирается на месте — f-строки с контекстом читаемее классов-исключений на каждый случай
-    "RUF001",  # кириллица в строках и комментариях — норма проекта
+    "TRY003",  # error text is built at the raise site; a dedicated exception class per case is noisier
+    "RUF001",  # README and comments may contain Cyrillic; ruff still scans Python sources
     "RUF002",
     "RUF003",
 ]
