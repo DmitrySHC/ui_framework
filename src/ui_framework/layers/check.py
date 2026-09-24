@@ -20,6 +20,8 @@ from .exceptions import ArchitectureError
 __all__ = ["Violation", "check_project", "ensure_architecture"]
 
 _SKIP_DIRS = frozenset({"__pycache__", ".venv", "node_modules"})
+_ASSERT_LAYERS = frozenset({"assert", "component_assert"})
+_ASSERT_METHOD_ALLOWLIST = frozenset({"check", "current_url", "title"})
 _LAYER_DIR_NAMES = frozenset(item.directory for item in LAYERS)
 
 
@@ -138,6 +140,7 @@ class _ModuleChecker(ast.NodeVisitor):
         self._classes.pop()
 
     def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
+        self._check_assert_name(node)
         self._functions.append(node.name)
         self.generic_visit(node)
         self._functions.pop()
@@ -146,6 +149,14 @@ class _ModuleChecker(ast.NodeVisitor):
         self._functions.append(node.name)
         self.generic_visit(node)
         self._functions.pop()
+
+    def _check_assert_name(self, node: ast.FunctionDef | ast.AsyncFunctionDef) -> None:
+        layer = self._classes[-1] if self._classes else None
+        if layer not in _ASSERT_LAYERS or node.name.startswith("_"):
+            return
+        if node.name in _ASSERT_METHOD_ALLOWLIST or node.name.startswith("verify_"):
+            return
+        self._report(node, "assert", f"{node.name}: assert methods start with verify_")
 
     def visit_Assert(self, node: ast.Assert) -> None:
         if not self._in_asserts:

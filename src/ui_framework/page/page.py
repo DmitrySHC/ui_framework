@@ -58,10 +58,6 @@ class BasePage(BaseInstance):
         self.driver.reload()
         return self.wait_loaded()
 
-    def wait_loaded(self) -> Self:
-        """Called after open and refresh. By default it waits for nothing and returns self."""
-        return self
-
     @property
     def title(self) -> str:
         return self.driver.page.title()
@@ -69,3 +65,7 @@ class BasePage(BaseInstance):
     @property
     def current_url(self) -> str:
         return self.driver.page.url
+
+    def wait_loaded(self) -> Self:
+        """Called after open and refresh. By default it waits for nothing and returns self."""
+        return self

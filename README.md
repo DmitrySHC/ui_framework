@@ -199,8 +199,8 @@ class TheInternet(StepsGroup):
 
 def test_login(app):
     app.steps.auth.login_as("tomsmith", "SuperSecretPassword!")
-    app.asserts.auth.logged_in()
-    app.asserts.auth.flash.contains("logged into a secure area")
+    app.asserts.auth.verify_logged_in()
+    app.asserts.auth.flash.verify_contains("logged into a secure area")
 ```
 
 Правила проверяются в рантайме и поднимают `LayerError`:
@@ -243,7 +243,7 @@ pytest_plugins = ("ui_framework.fixtures.driver",)
 Фикстуры: `webdriver_settings` → `webdriver_config` → `driver`.
 Драйвер стартует перед тестом и вызывает `quit()` после.
 
-Проверки пишутся через `assert_that` и матчеры Hamcrest (`equal_to`, `contains_string`, `ends_with` и остальные из `ui_framework`). `assert_that` разрешён только в `asserts/`.
+Проверки пишутся через `assert_that` и матчеры Hamcrest (`equal_to`, `contains_string`, `ends_with` и остальные из `ui_framework`). Методы проверок начинаются с `verify_`. `assert_that` разрешён только в `asserts/`.
 
 При падении теста фикстура прикладывает к Allure скриншот, `session.log`, `console.log` и `trace.zip`, если они есть. Отчёт собирается так:
 

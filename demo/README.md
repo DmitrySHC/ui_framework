@@ -48,16 +48,16 @@ demo/
 ```python
 def test_login_and_logout(app: TheInternet):
     app.steps.auth.login_as("tomsmith", "SuperSecretPassword!")
-    app.asserts.auth.logged_in()
-    app.asserts.auth.flash.contains("logged into a secure area")
+    app.asserts.auth.verify_logged_in()
+    app.asserts.auth.flash.verify_contains("logged into a secure area")
 
     app.steps.auth.logout()
-    app.asserts.auth.logged_out()
-    app.asserts.auth.flash.contains("logged out")
+    app.asserts.auth.verify_logged_out()
+    app.asserts.auth.flash.verify_contains("logged out")
 ```
 
 Иерархия агрегаторов: `app.steps.forms.dropdown.choose("Option 2")` и
-зеркальная `app.asserts.forms.dropdown.selected_is("Option 2")`.
+зеркальная `app.asserts.forms.dropdown.verify_selected_is("Option 2")`.
 Баннер входит в сценарий, которому он нужен: `app.steps.auth.flash` /
 `app.asserts.auth.flash`. Если фрагмент появится у форм — тот же
 `FlashComponentSteps` создают в конструкторе `FormsSteps`.

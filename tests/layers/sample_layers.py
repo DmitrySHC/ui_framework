@@ -74,9 +74,6 @@ class BadgeComponentSteps(BaseComponentSteps):
     def text(self) -> str:
         return self.badge.text()
 
-    def poke(self) -> Self:
-        return self
-
     def asserting(self) -> None:
         raise AssertionError("a component step must not assert")
 
@@ -86,13 +83,9 @@ class BadgeComponentAsserts(BaseComponentAsserts):
         super().__init__(driver, base_url)
         self.step = BadgeComponentSteps(driver, base_url)
 
-    def text_is(self, text: str) -> Self:
+    def verify_text_is(self, text: str) -> Self:
         value = self.step.text()
         assert value == text, f"badge {value!r}, expected {text!r}"
-        return self
-
-    def tries_to_poke(self) -> Self:
-        self.step.poke()
         return self
 
 
@@ -145,22 +138,22 @@ class WidgetAsserts(BaseAssert):
         self.step = WidgetSteps(driver, base_url)
         self.badge = BadgeComponentAsserts(driver, base_url)
 
-    def status_is(self, text: str) -> Self:
+    def verify_status_is(self, text: str) -> Self:
         status = self.step.status()
         assert status == text, f"status {status!r}, expected {text!r}"
         return self
 
-    def heading_is(self, text: str) -> Self:
+    def verify_heading_is(self, text: str) -> Self:
         heading = self.step.heading()
         assert heading == text, f"heading {heading!r}, expected {text!r}"
         return self
 
-    def username_is(self, text: str) -> Self:
+    def verify_username_is(self, text: str) -> Self:
         value = self.step.username()
         assert value == text, f"field {value!r}, expected {text!r}"
         return self
 
-    def is_ready(self) -> Self:
+    def verify_is_ready(self) -> Self:
         assert self.step.ready(), "page is not Ready"
         return self
 

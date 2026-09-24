@@ -1,10 +1,18 @@
 import pytest
 
-from ui_framework import BaseAssert, BaseDriver, ChromeDriver, LayerError
+from ui_framework import (
+    BaseAssert,
+    BaseComponentAsserts,
+    BaseDriver,
+    ChromeDriver,
+    ConditionNotMatchedException,
+    LayerError,
+)
 
 from .sample_layers import (
     BASE,
     BadgeComponentAsserts,
+    BadgeComponentSteps,
     BrokenWidgetAsserts,
     SampleApp,
     StatusBadge,
@@ -69,24 +77,47 @@ def test_readonly_step_cannot_navigate(idle_driver: ChromeDriver):
 def test_assertion_error_is_raised_by_asserts(driver: ChromeDriver):
     app = SampleApp(driver, BASE)
     app.steps.widgets.open()
-    app.asserts.widgets.status_is("Ready").is_ready()
+    app.asserts.widgets.verify_status_is("Ready").verify_is_ready()
     with pytest.raises(AssertionError, match="expected 'Clicked'"):
-        app.asserts.widgets.status_is("Clicked")
+        app.asserts.widgets.verify_status_is("Clicked")
 
 
 def test_component_assert_reads_component_step(driver: ChromeDriver):
     app = SampleApp(driver, BASE)
     app.steps.widgets.open()
-    app.asserts.widgets.badge.text_is("Ready")
+    app.asserts.widgets.badge.verify_text_is("Ready")
+
+
+class ActingSteps(BadgeComponentSteps):
+    def poke(self) -> None:
+        return None
+
+
+class AssertThatActs(BaseComponentAsserts):
+    def __init__(self, driver: BaseDriver, base_url: str) -> None:
+        super().__init__(driver, base_url)
+        self.step = ActingSteps(driver, base_url)
+
+    def verify_pokes(self) -> None:
+        self.step.poke()
 
 
 def test_component_assert_cannot_call_action(idle_driver: ChromeDriver):
     with pytest.raises(LayerError, match="asserts layer is read-only"):
-        WidgetAsserts(idle_driver, BASE).badge.tries_to_poke()
+        AssertThatActs(idle_driver, BASE).verify_pokes()
+
+
+def test_check_turns_timeout_into_assertion_error(idle_driver: ChromeDriver):
+    def missed() -> None:
+        raise ConditionNotMatchedException("banner: timed out waiting for absent after 10s")
+
+    with pytest.raises(AssertionError, match="timed out waiting for absent") as info:
+        BadgeComponentAsserts(idle_driver, BASE).check(missed)
+    assert isinstance(info.value.__cause__, ConditionNotMatchedException)
 
 
 def test_component_assert_keeps_assertion_error(driver: ChromeDriver):
     app = SampleApp(driver, BASE)
     app.steps.widgets.open()
     with pytest.raises(AssertionError, match="expected 'Clicked'"):
-        app.asserts.widgets.badge.text_is("Clicked")
+        app.asserts.widgets.badge.verify_text_is("Clicked")

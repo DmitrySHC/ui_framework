@@ -13,3 +13,11 @@ class BaseComponent(BaseInstance):
     """
 
     _layer: ClassVar[Layer | None] = "component"
+
+    @property
+    def title(self) -> str:
+        return self.driver.page.title()
+
+    @property
+    def current_url(self) -> str:
+        return self.driver.page.url

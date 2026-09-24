@@ -70,6 +70,6 @@ def test_nested_aggregator_cannot_hold_asserts(idle_driver: ChromeDriver):
 def test_app_drives_scenario(driver: ChromeDriver):
     app = SampleApp(driver, BASE)
     app.steps.widgets.open().type_username("alice")
-    app.asserts.widgets.heading_is("Widgets").username_is("alice").status_is("Ready")
+    app.asserts.widgets.verify_heading_is("Widgets").verify_username_is("alice").verify_status_is("Ready")
     app.steps.widgets.submit()
-    app.asserts.widgets.status_is("Clicked")
+    app.asserts.widgets.verify_status_is("Clicked")

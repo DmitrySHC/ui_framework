@@ -61,6 +61,23 @@ def test_clean_project_has_no_violations(tmp_path: Path):
     assert check_project(_project(tmp_path)) == []
 
 
+def test_assert_method_without_verify_prefix(tmp_path: Path):
+    _project(tmp_path)
+    _write(
+        tmp_path,
+        "asserts/widgets.py",
+        """
+        from ui_framework import BaseAssert
+
+
+        class WidgetAsserts(BaseAssert):
+            def heading_is(self):
+                return self
+        """,
+    )
+    assert _rules(tmp_path) == {"assert"}
+
+
 def test_assert_that_outside_asserts(tmp_path: Path):
     _project(tmp_path)
     _write(

@@ -12,10 +12,10 @@ class DropdownAsserts(BaseAssert):
         super().__init__(driver, base_url)
         self.step = DropdownSteps(driver, base_url)
 
-    def selected_is(self, option: str) -> Self:
+    def verify_selected_is(self, option: str) -> Self:
         assert_that(self.step.selected(), equal_to(option))
         return self
 
-    def heading_is(self, text: str) -> Self:
+    def verify_heading_is(self, text: str) -> Self:
         assert_that(self.step.heading(), equal_to(text))
         return self

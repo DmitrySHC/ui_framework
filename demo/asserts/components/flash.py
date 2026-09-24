@@ -12,10 +12,10 @@ class FlashComponentAsserts(BaseComponentAsserts):
         super().__init__(driver, base_url)
         self.step = FlashComponentSteps(driver, base_url)
 
-    def contains(self, text: str) -> Self:
+    def verify_contains(self, text: str) -> Self:
         assert_that(self.step.text().lower(), contains_string(text.lower()))
         return self
 
-    def is_absent(self) -> Self:
-        self.step.wait_absent()
+    def verify_is_absent(self) -> Self:
+        self.check(self.step.wait_absent)
         return self

@@ -36,8 +36,3 @@ class AuthSteps(BaseStep):
     @readonly
     def secure_heading(self) -> str:
         return self.secure.wait_loaded().heading_text()
-
-    @readonly
-    def current_url(self) -> str:
-        """URL of the current tab."""
-        return self.login.current_url

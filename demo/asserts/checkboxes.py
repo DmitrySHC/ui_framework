@@ -12,6 +12,6 @@ class CheckboxesAsserts(BaseAssert):
         super().__init__(driver, base_url)
         self.step = CheckboxesSteps(driver, base_url)
 
-    def states_are(self, first: bool, second: bool) -> Self:
+    def verify_states_are(self, first: bool, second: bool) -> Self:
         assert_that(self.step.states(), equal_to((first, second)))
         return self

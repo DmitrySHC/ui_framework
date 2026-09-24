@@ -12,18 +12,18 @@ class TablesAsserts(BaseAssert):
         super().__init__(driver, base_url)
         self.step = TablesSteps(driver, base_url)
 
-    def smith_email_is(self, email: str) -> Self:
+    def verify_smith_email_is(self, email: str) -> Self:
         assert_that(self.step.smith_email(), equal_to(email))
         return self
 
-    def doe_due_is(self, due: str) -> Self:
+    def verify_doe_due_is(self, due: str) -> Self:
         assert_that(self.step.doe_due(), equal_to(due))
         return self
 
-    def heading_is(self, text: str) -> Self:
+    def verify_heading_is(self, text: str) -> Self:
         assert_that(self.step.heading(), equal_to(text))
         return self
 
-    def at_delete(self) -> Self:
-        assert_that(self.step.current_url(), ends_with("#delete"))
+    def verify_at_delete(self) -> Self:
+        assert_that(self.current_url(), ends_with("#delete"))
         return self

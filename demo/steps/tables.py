@@ -31,7 +31,3 @@ class TablesSteps(BaseStep):
     @readonly
     def heading(self) -> str:
         return self.page.heading_text()
-
-    @readonly
-    def current_url(self) -> str:
-        return self.page.current_url

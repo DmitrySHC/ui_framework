@@ -122,6 +122,23 @@ def test_step_reads_state_through_pages(driver: ChromeDriver):
     assert steps.ready() is False
 
 
+def test_step_reads_the_open_tab(driver: ChromeDriver):
+    steps = WidgetSteps(driver, BASE).open()
+    assert steps.current_url().startswith("file:")
+    assert steps.title() == "Sample widgets"
+    assert steps.badge.current_url() == steps.current_url()
+
+
+class EmptySteps(BaseStep):
+    def __init__(self, driver: BaseDriver, base_url: str) -> None:
+        super().__init__(driver, base_url)
+
+
+def test_step_without_page_cannot_read_the_tab(idle_driver: ChromeDriver):
+    with pytest.raises(LayerError, match="holds no page or component"):
+        EmptySteps(idle_driver, BASE).current_url()
+
+
 def test_step_reads_component_it_holds(driver: ChromeDriver):
     WidgetsPage(driver, BASE).open()
     assert StepBuildingComponent(driver, BASE).status() == "Ready"

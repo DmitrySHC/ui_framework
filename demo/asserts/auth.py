@@ -14,11 +14,11 @@ class AuthAsserts(BaseAssert):
         self.step = AuthSteps(driver, base_url)
         self.flash = FlashComponentAsserts(driver, base_url)
 
-    def logged_in(self) -> Self:
+    def verify_logged_in(self) -> Self:
         assert_that(self.step.secure_heading(), contains_string("Secure Area"))
         return self
 
-    def logged_out(self) -> Self:
+    def verify_logged_out(self) -> Self:
         assert_that(self.step.login_heading(), contains_string("Login Page"))
-        assert_that(self.step.current_url(), contains_string("/login"))
+        assert_that(self.current_url(), contains_string("/login"))
         return self
