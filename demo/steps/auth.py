@@ -9,7 +9,7 @@ __all__ = ["AuthSteps"]
 
 
 class AuthSteps(BaseStep):
-    """Вход через ``LoginPage`` и выход через ``SecurePage``."""
+    """Signs in through the login page and signs out through the secure page."""
 
     def __init__(self, driver: BaseDriver, base_url: str) -> None:
         super().__init__(driver, base_url)
@@ -39,5 +39,5 @@ class AuthSteps(BaseStep):
 
     @readonly
     def current_url(self) -> str:
-        """URL текущей вкладки."""
+        """URL of the current tab."""
         return self.login.current_url

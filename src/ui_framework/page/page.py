@@ -14,7 +14,7 @@ PageT = TypeVar("PageT", bound="BasePage")
 
 
 def url(path: str) -> Callable[[type[PageT]], type[PageT]]:
-    """Задаёт классу страницы шаблон пути с плейсхолдерами ``{name}``; на другом классе поднимает ``PageError``."""
+    """Sets the page path template. Placeholders look like {name}. Other classes raise PageError."""
 
     def decorator(cls: type[PageT]) -> type[PageT]:
         if not isinstance(cls, type) or not issubclass(cls, BasePage):
@@ -27,9 +27,9 @@ def url(path: str) -> Callable[[type[PageT]], type[PageT]]:
 
 
 class BasePage(BaseInstance):
-    """Страница с адресом из ``@url`` и ``base_url``; открывается ``open()``, перезагружается ``refresh()``.
+    """A page with a path from the url decorator and a base URL.
 
-    Класс без ``@url`` поднимает ``PageError`` в конструкторе.
+    open navigates, refresh reloads. A class without the decorator raises PageError.
     """
 
     _layer: ClassVar[Layer | None] = "page"
@@ -44,11 +44,7 @@ class BasePage(BaseInstance):
         self._template = template
 
     def url(self, **kwargs: Any) -> str:
-        """Абсолютный URL страницы.
-
-        Плейсхолдеры шаблона заполняются kwargs с процентным кодированием;
-        путь без схемы присоединяется к ``base_url``.
-        """
+        """Absolute URL. Keyword arguments fill the path template and are quoted."""
         quoted = {name: quote(str(value), safe="") for name, value in kwargs.items()}
         return urljoin(f"{self.base_url.rstrip('/')}/", self._template.format(**quoted))
 
@@ -63,7 +59,7 @@ class BasePage(BaseInstance):
         return self.wait_loaded()
 
     def wait_loaded(self) -> Self:
-        """Вызывается после ``open()`` и ``refresh()``; по умолчанию ничего не ждёт и возвращает ``self``."""
+        """Called after open and refresh. By default it waits for nothing and returns self."""
         return self
 
     @property

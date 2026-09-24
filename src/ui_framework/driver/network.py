@@ -31,7 +31,7 @@ class RequestRecord:
 
 @dataclass(slots=True)
 class NetworkLog:
-    """Запросы, пойманные текущим ``intercept()``."""
+    """Requests captured by the current intercept."""
 
     requests: list[RequestRecord] = field(default_factory=list)
 
@@ -54,7 +54,7 @@ class NetworkLog:
 
 
 class NetworkInterceptor:
-    """Перехват запросов страницы через ``page.route``; маршрут снимается при выходе из ``with``."""
+    """Routes page requests for the duration of a with block, then removes the route."""
 
     def __init__(self, driver: "BaseDriver") -> None:
         self._driver = driver
@@ -86,7 +86,7 @@ class NetworkInterceptor:
 
     @contextmanager
     def intercept(self, *patterns: str) -> Iterator[NetworkLog]:
-        """Пишет совпавшие запросы в лог и пропускает их дальше."""
+        """Records matching requests and lets them continue."""
         log = NetworkLog()
 
         def capture(route: Route) -> None:
@@ -106,7 +106,7 @@ class NetworkInterceptor:
         headers: dict[str, str] | None = None,
         content_type: str = DEFAULT_STUB_CONTENT_TYPE,
     ) -> Iterator[None]:
-        """Отдаёт заглушку вместо реального ответа."""
+        """Fulfills matching requests with a stub response."""
         merged = {CONTENT_TYPE_HEADER: content_type, **(headers or {})}
 
         def respond(route: Route) -> None:
@@ -117,7 +117,7 @@ class NetworkInterceptor:
 
     @contextmanager
     def rewrite(self, *patterns: str, to: str) -> Iterator[None]:
-        """Отвечает на запрос содержимым, полученным с ``to``; URL страницы не меняется."""
+        """Serves the response from another URL under the original address."""
 
         def mutate(route: Route) -> None:
             route.fulfill(response=route.fetch(url=to))

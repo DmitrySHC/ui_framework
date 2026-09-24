@@ -61,6 +61,22 @@ def test_clean_project_has_no_violations(tmp_path: Path):
     assert check_project(_project(tmp_path)) == []
 
 
+def test_assert_that_outside_asserts(tmp_path: Path):
+    _project(tmp_path)
+    _write(
+        tmp_path,
+        "steps/checks.py",
+        """
+        from ui_framework import assert_that, equal_to
+
+
+        def verify(value):
+            assert_that(value, equal_to(1))
+        """,
+    )
+    assert _rules(tmp_path) == {"assert"}
+
+
 def test_assert_outside_asserts(tmp_path: Path):
     _project(tmp_path)
     _write(

@@ -4,6 +4,7 @@ __all__ = ["Image"]
 
 
 class Image(BaseElement):
+    _role = "img"
     @property
     def src(self) -> str | None:
         return self.get_attribute("src")

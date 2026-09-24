@@ -4,8 +4,8 @@ __all__ = ["ArchitectureError", "LayerError"]
 
 
 class LayerError(FrameworkError):
-    """Объект слоя создан не в том конструкторе, хранит чужой слой, или проверка меняет состояние страницы."""
+    """A layer was built in the wrong place, holds the wrong child, or a check changed the page."""
 
 
 class ArchitectureError(LayerError):
-    """``ensure_architecture`` нашла нарушения; текст содержит их список."""
+    """ensure_architecture found violations. The message lists them."""

@@ -9,6 +9,7 @@ _SELECTED_OPTION = "option:checked"
 
 
 class Select(BaseElement):
+    _role = "combobox"
     @mutating
     def select_by_text(self, text: str, timeout: float | None = None) -> Self:
         self.wait_visible(timeout=timeout)

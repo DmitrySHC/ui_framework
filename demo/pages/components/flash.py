@@ -6,7 +6,7 @@ __all__ = ["FlashMessage"]
 
 
 class FlashMessage(BaseComponent):
-    """Баннер ``#flash``: текст и закрытие."""
+    """The flash banner: its text and the close control."""
 
     banner = Text(id="flash")
     dismiss = Link(css="#flash a.close")

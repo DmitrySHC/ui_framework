@@ -97,7 +97,7 @@ class BadgeComponentAsserts(BaseComponentAsserts):
 
 
 class WidgetSteps(BaseStep):
-    """Открывает ``WidgetsPage``, жмёт кнопку, заполняет поле и читает состояние страницы."""
+    """Opens the widgets page, clicks, fills the field, and reads the page."""
 
     def __init__(self, driver: BaseDriver, base_url: str) -> None:
         super().__init__(driver, base_url)
@@ -138,7 +138,7 @@ class WidgetSteps(BaseStep):
 
 
 class WidgetAsserts(BaseAssert):
-    """Сравнивает заголовок, статус и значение поля ``WidgetsPage`` с ожидаемыми."""
+    """Compares the heading, status, and field value with what the test expects."""
 
     def __init__(self, driver: BaseDriver, base_url: str) -> None:
         super().__init__(driver, base_url)
@@ -185,7 +185,7 @@ class SampleApp(StepsGroup):
 
 
 class BrokenWidgetSteps(WidgetSteps):
-    """Трогает элементы и драйвер страницы, меняет состояние под ``@readonly``, бросает ``AssertionError``."""
+    """Touches elements and the driver, mutates from a readonly method, and raises AssertionError."""
 
     def touch_element(self) -> str:
         return self.page.heading.text
@@ -208,7 +208,7 @@ class BrokenWidgetSteps(WidgetSteps):
 
 
 class BrokenWidgetAsserts(BaseAssert):
-    """Проверка, вызывающая действия ``BrokenWidgetSteps`` вместо чтений."""
+    """A check that calls actions instead of reads."""
 
     def __init__(self, driver: BaseDriver, base_url: str) -> None:
         super().__init__(driver, base_url)

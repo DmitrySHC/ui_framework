@@ -1,6 +1,6 @@
 from .base import BaseDriver
 from .chrome import ChromeDriver
-from .config import DriverConfig
+from .config import DriverConfig, Geolocation
 from .exceptions import DriverConfigurationError, DriverNotStartedError, FrameworkError, NetworkError
 from .logs import ConsoleEntry, DriverLogs
 from .network import NetworkInterceptor, NetworkLog, RequestRecord
@@ -17,6 +17,7 @@ __all__ = [
     "DriverLogs",
     "DriverNotStartedError",
     "FrameworkError",
+    "Geolocation",
     "NetworkError",
     "NetworkInterceptor",
     "NetworkLog",

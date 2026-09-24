@@ -11,23 +11,23 @@ __all__ = ["Layered", "Orchestration"]
 
 
 class Layered(metaclass=LayerMeta):
-    """Класс со слоем ``_layer``; экземпляры конструирует и проверяет ``LayerMeta``."""
+    """A class with a layer. LayerMeta checks where its instances are built."""
 
     _layer: ClassVar[Layer | None] = None
     #: True у страниц и компонентов, созданных внутри конструктора шага, проверки или агрегатора.
     _layered: bool = False
 
     def _layer_built(self) -> None:
-        """Вызывается ``LayerMeta`` после ``__init__`` самого внешнего конструктора."""
+        """Called by LayerMeta after the outermost constructor finishes."""
 
 
 class Orchestration(Layered):
-    """Слой с конструктором ``(driver, base_url)``; в атрибуты принимает только объекты из ``children`` слоя."""
+    """A layer built from driver and base_url. Attributes must be its child layers."""
 
     _layer: ClassVar[Layer]
 
     def __init__(self, driver: "BaseDriver", base_url: str) -> None:
-        """Ничего не сохраняет; дочерние объекты создаёт наследник."""
+        """Stores nothing. The subclass creates the children."""
 
     def __setattr__(self, name: str, value: Any) -> None:
         allowed = spec(self._layer)

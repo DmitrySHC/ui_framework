@@ -7,6 +7,7 @@ __all__ = ["RadioButton"]
 
 
 class RadioButton(BaseElement):
+    _role = "radio"
     @property
     def is_selected(self) -> bool:
         self.wait_present()
@@ -14,7 +15,7 @@ class RadioButton(BaseElement):
 
     @mutating
     def select(self, timeout: float | None = None) -> Self:
-        """Выбирает кнопку; уже выбранную не кликает."""
+        """Selects the button. An already selected one is left alone."""
         self.wait_clickable(timeout=timeout)
         self._locator().check()
         return self

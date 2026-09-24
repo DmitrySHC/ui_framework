@@ -4,4 +4,4 @@ __all__ = ["PageError"]
 
 
 class PageError(FrameworkError):
-    """Страница без ``@url`` или ``@url`` на классе, который не наследует ``BasePage``."""
+    """A page is missing its url decorator, or the decorator is on the wrong class."""

@@ -1,6 +1,6 @@
 from typing import Self
 
-from ui_framework import BaseAssert, BaseDriver
+from ui_framework import BaseAssert, BaseDriver, assert_that, ends_with, equal_to
 
 from demo.steps.tables import TablesSteps
 
@@ -13,21 +13,17 @@ class TablesAsserts(BaseAssert):
         self.step = TablesSteps(driver, base_url)
 
     def smith_email_is(self, email: str) -> Self:
-        actual = self.step.smith_email()
-        assert actual == email, f"email {actual!r}, expected {email!r}"
+        assert_that(self.step.smith_email(), equal_to(email))
         return self
 
     def doe_due_is(self, due: str) -> Self:
-        actual = self.step.doe_due()
-        assert actual == due, f"due {actual!r}, expected {due!r}"
+        assert_that(self.step.doe_due(), equal_to(due))
         return self
 
     def heading_is(self, text: str) -> Self:
-        heading = self.step.heading()
-        assert heading == text, f"heading {heading!r}, expected {text!r}"
+        assert_that(self.step.heading(), equal_to(text))
         return self
 
     def at_delete(self) -> Self:
-        url = self.step.current_url()
-        assert url.endswith("#delete"), f"url {url!r} has no #delete"
+        assert_that(self.step.current_url(), ends_with("#delete"))
         return self

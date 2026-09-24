@@ -2,16 +2,16 @@ __all__ = ["DriverConfigurationError", "DriverNotStartedError", "FrameworkError"
 
 
 class FrameworkError(Exception):
-    """Базовое исключение фреймворка."""
+    """Base error for the framework."""
 
 
 class DriverConfigurationError(FrameworkError):
-    """Некорректные параметры драйвера: неизвестный ключ, тип или их комбинация."""
+    """The driver config has an unknown field, a bad type, or an invalid combination."""
 
 
 class DriverNotStartedError(FrameworkError):
-    """Обращение к сессии до вызова start() или после quit()."""
+    """The session was used before start or after quit."""
 
 
 class NetworkError(FrameworkError):
-    """Не дождались запроса в ``NetworkLog.wait_for`` или упал колбэк маршрута."""
+    """A waited-for request never arrived, or a route callback failed."""

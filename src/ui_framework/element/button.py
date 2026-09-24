@@ -4,4 +4,4 @@ __all__ = ["Button"]
 
 
 class Button(BaseElement):
-    pass
+    _role = "button"

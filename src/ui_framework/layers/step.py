@@ -7,11 +7,10 @@ __all__ = ["BaseStep"]
 
 
 class BaseStep(Orchestration):
-    """Действия над страницами, компонентами и шагами компонентов.
+    """Actions over pages, components, and component steps.
 
-    Атрибуты создаются в ``__init__``. Из методов доступны методы этих
-    объектов; обращение к их элементам или ``driver`` поднимает ``LayerError``.
-    Методы без ``@readonly`` считаются действиями и недоступны из проверок.
+    Children are created in init. Methods may call those objects, but not their
+    elements or driver. A method without readonly is an action and is hidden from checks.
     """
 
     _layer: ClassVar[Layer] = "step"

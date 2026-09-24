@@ -42,24 +42,24 @@ def _frame(kind: Kind, layer: Layer) -> Iterator[None]:
 
 
 def layer_of(value: object) -> Layer | None:
-    """Слой объекта по маркеру класса; None для обычных объектов."""
+    """Layer marker of an object, or None for a plain value."""
     return getattr(type(value), "_layer", None)
 
 
 def is_root_build() -> bool:
-    """True, пока выполняется конструктор корневого агрегатора (в стеке один кадр ``build`` с ``root``)."""
+    """True while the root aggregator's constructor is running."""
     stack = _stack.get()
     return len(stack) == 1 and stack[0].kind == "build" and spec(stack[0].layer).root
 
 
 def readonly[F: Callable[..., Any]](func: F) -> F:
-    """Помечает метод как чтение состояния: его можно вызывать из слоя проверок."""
+    """Marks a step method as a read, so an assert may call it."""
     setattr(func, _READONLY_MARK, True)
     return func
 
 
 def mutating[F: Callable[..., Any]](func: F) -> F:
-    """Оборачивает метод элемента проверкой ``ensure_mutable`` перед вызовом."""
+    """Blocks the element method when an assert is on the call stack."""
 
     @functools.wraps(func)
     def wrapper(self: Any, *args: Any, **kwargs: Any) -> Any:
@@ -70,13 +70,13 @@ def mutating[F: Callable[..., Any]](func: F) -> F:
 
 
 def ensure_mutable(what: str) -> None:
-    """Поднимает ``LayerError``, если в стеке вызовов есть слой проверок."""
+    """Raises LayerError when a check is already on the call stack."""
     if any(spec(frame.layer).read_only for frame in _stack.get()):
         raise LayerError(f"{what}: asserts layer is read-only")
 
 
 def ensure_inside_elements(what: str) -> None:
-    """Поднимает ``LayerError``, если текущий вызов — не метод страницы или компонента."""
+    """Raises LayerError unless the caller is a page or component method."""
     stack = _stack.get()
     if not stack or not spec(stack[-1].layer).elements:
         raise LayerError(f"{what}: only page and component methods may use elements")
@@ -130,13 +130,11 @@ def _wrap_members(cls: type, namespace: Mapping[str, Any], layer: Layer) -> None
 
 
 class LayerMeta(ABCMeta):
-    """Ведёт стек кадров слоёв.
+    """Tracks which layer is constructing or calling.
 
-    При создании класса оборачивает его публичные методы и свойства: вызов кладёт
-    кадр ``call``, а ``AssertionError`` вне слоя проверок превращает в ``LayerError``.
-    При создании экземпляра сверяет верх стека с ``parents`` слоя, держит кадр
-    ``build`` на время ``__init__`` и затем вызывает ``_layer_built``. Для классов с
-    ``_layer = None`` ничего не делает.
+    Public methods push a call frame. An AssertionError outside checks becomes
+    LayerError. Construction is allowed only from a parent layer, and _layer_built
+    runs after init. A class with no layer is left alone.
     """
 
     _layer: Layer | None

@@ -8,7 +8,7 @@ __all__ = ["ChromeDriver"]
 
 
 class ChromeDriver(BaseDriver):
-    """Запускает установленный Chrome (``channel="chrome"``) с аргументами, headless и каталогом загрузок из конфига."""
+    """Launches the installed Chrome with the config's headless flag, args, and downloads directory."""
 
     browser_name = "chrome"
     config_class = DriverConfig

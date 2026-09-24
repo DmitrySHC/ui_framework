@@ -6,7 +6,7 @@ __all__ = ["PersonRow"]
 
 
 class PersonRow(BaseElement):
-    """Строка таблицы: один локатор на ``tr``, ячейки и ссылки ищутся от него."""
+    """One table row. Cells and links are found from that row."""
 
     def email(self) -> str:
         self.wait_present()

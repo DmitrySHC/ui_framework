@@ -7,6 +7,7 @@ __all__ = ["Checkbox"]
 
 
 class Checkbox(BaseElement):
+    _role = "checkbox"
     @property
     def is_checked(self) -> bool:
         self.wait_present()
@@ -14,7 +15,7 @@ class Checkbox(BaseElement):
 
     @mutating
     def set_checked(self, checked: bool, timeout: float | None = None) -> Self:
-        """Ставит или снимает флажок; если состояние уже нужное, клика не будет."""
+        """Sets the checkbox. Does nothing when it is already in that state."""
         self.wait_clickable(timeout=timeout)
         self._locator().set_checked(checked)
         return self

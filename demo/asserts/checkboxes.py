@@ -1,6 +1,6 @@
 from typing import Self
 
-from ui_framework import BaseAssert, BaseDriver
+from ui_framework import BaseAssert, BaseDriver, assert_that, equal_to
 
 from demo.steps.checkboxes import CheckboxesSteps
 
@@ -13,6 +13,5 @@ class CheckboxesAsserts(BaseAssert):
         self.step = CheckboxesSteps(driver, base_url)
 
     def states_are(self, first: bool, second: bool) -> Self:
-        states = self.step.states()
-        assert states == (first, second), f"states {states}, expected {(first, second)}"
+        assert_that(self.step.states(), equal_to((first, second)))
         return self

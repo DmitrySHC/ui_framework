@@ -7,9 +7,9 @@ __all__ = ["BaseComponent"]
 
 
 class BaseComponent(BaseInstance):
-    """Фрагмент UI без URL: баннер, шапка, модалка.
+    """A piece of UI without its own URL, such as a banner, header, or modal.
 
-    Создаётся в конструкторе страницы, шага сценария или шага компонента.
+    Created in a page, a scenario step, or a component step.
     """
 
     _layer: ClassVar[Layer | None] = "component"

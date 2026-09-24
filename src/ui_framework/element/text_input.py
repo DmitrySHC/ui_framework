@@ -7,6 +7,7 @@ __all__ = ["TextInput"]
 
 
 class TextInput(BaseElement):
+    _role = "textbox"
     @mutating
     def fill(self, value: str, timeout: float | None = None) -> Self:
         self.wait_visible(timeout=timeout)

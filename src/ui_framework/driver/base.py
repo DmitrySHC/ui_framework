@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from collections.abc import Mapping
 from contextlib import suppress
+from pathlib import Path
 from typing import Any, ClassVar, Self
 from uuid import uuid4
 
@@ -17,10 +18,10 @@ __all__ = ["BaseDriver"]
 
 
 class BaseDriver(ABC):
-    """Сессия Playwright: браузер, контекст, страница и каталог логов.
+    """One Playwright session: browser, context, page, and a log directory.
 
-    Конструктор принимает один аргумент — ``DriverConfig``. Наследник задаёт
-    ``browser_name``, ``config_class`` и реализует ``_launch_browser``.
+    The constructor takes a single DriverConfig. A subclass sets browser_name
+    and config_class, and implements _launch_browser.
     """
 
     browser_name: ClassVar[str] = ""
@@ -60,6 +61,7 @@ class BaseDriver(ABC):
         self._page: Page | None = None
         self._session_id: str | None = None
         self._network: NetworkInterceptor | None = None
+        self._tracing = False
         self._console_entries: list[ConsoleEntry] = []
         self.logs = DriverLogs(self.browser_name, config.logs_dir)
         self._log = self.logs.logger
@@ -78,12 +80,12 @@ class BaseDriver(ABC):
         return payload
 
     def console_logs(self) -> list[ConsoleEntry]:
-        """Сообщения консоли и JS-ошибки, накопленные с момента ``start()``."""
+        """Console messages and page errors collected since start."""
         return list(self._console_entries)
 
     @abstractmethod
     def _launch_browser(self, playwright: Playwright) -> Browser:
-        """Запускает браузер по параметрам ``self.config``."""
+        """Launches the browser from self.config."""
 
     def start(self) -> Self:
         if self.is_started:
@@ -96,6 +98,7 @@ class BaseDriver(ABC):
             self._browser = self._launch_browser(self._playwright)
             self._context = self._browser.new_context(**self._context_options())
             self._page = self._context.new_page()
+            self._start_trace()
         except Exception as error:
             self._log.error("session failed (%s): %s", type(error).__name__, error)
             self._log.info("see %s", self.logs.browser_log)
@@ -112,8 +115,50 @@ class BaseDriver(ABC):
         profile = self.device_profile
         if profile is None:
             width, height = self.config.window_size
-            return {"viewport": {"width": width, "height": height}}
-        return profile.context_options()
+            options: dict[str, Any] = {"viewport": {"width": width, "height": height}}
+        else:
+            options = profile.context_options()
+        config = self.config
+        if config.storage_state is not None:
+            options["storage_state"] = str(config.storage_state)
+        if config.locale is not None:
+            options["locale"] = config.locale
+        if config.timezone_id is not None:
+            options["timezone_id"] = config.timezone_id
+        if config.color_scheme is not None:
+            options["color_scheme"] = config.color_scheme
+        if config.geolocation is not None:
+            options["geolocation"] = config.geolocation.model_dump()
+        if config.permissions:
+            options["permissions"] = list(config.permissions)
+        return options
+
+    def _start_trace(self) -> None:
+        if self.config.trace == "off":
+            return
+        self.context.tracing.start(screenshots=True, snapshots=True)
+        self._tracing = True
+
+    def finish_trace(self, *, failed: bool) -> None:
+        """Stops the trace. on, and a failure under retain-on-failure, write trace.zip."""
+        if not self._tracing:
+            return
+        keep = self.config.trace == "on" or failed
+        if keep:
+            self.context.tracing.stop(path=str(self.logs.directory / "trace.zip"))
+        else:
+            self.context.tracing.stop()
+        self._tracing = False
+
+    def save_failure_screenshot(self) -> None:
+        """Writes failure.png into the log directory while the session is alive."""
+        if not self.is_started:
+            return
+        self.page.screenshot(path=str(self.logs.directory / "failure.png"))
+
+    def save_storage_state(self, path: Path, *, indexed_db: bool = False) -> None:
+        """Saves cookies and localStorage. Pass indexed_db to include IndexedDB."""
+        self.context.storage_state(path=str(path), indexed_db=indexed_db)
 
     def _apply_timeouts(self) -> None:
         self.page.set_default_navigation_timeout(int(self.config.page_load_timeout * 1000))
@@ -141,6 +186,12 @@ class BaseDriver(ABC):
         return self._page is not None
 
     @property
+    def context(self) -> BrowserContext:
+        if self._context is None:
+            raise DriverNotStartedError(f"{type(self).__name__} is not started: call start() before using the session")
+        return self._context
+
+    @property
     def page(self) -> Page:
         if self._page is None:
             raise DriverNotStartedError(f"{type(self).__name__} is not started: call start() before using the session")
@@ -148,12 +199,12 @@ class BaseDriver(ABC):
 
     @property
     def webdriver(self) -> Page:
-        """То же, что ``page``."""
+        """Same object as page."""
         return self.page
 
     @property
     def session_id(self) -> str | None:
-        """Уникальный идентификатор текущей сессии; None до ``start()`` и после ``quit()``."""
+        """Id of the running session. None before start and after quit."""
         return self._session_id
 
     @property
@@ -163,19 +214,19 @@ class BaseDriver(ABC):
         return self._network
 
     def open(self, url: str) -> Self:
-        """Переходит по URL; чего ждать после навигации, задаёт ``page_load_strategy``."""
+        """Opens a URL. page_load_strategy decides what to wait for."""
         self._log.info("opening %s", url)
         self.page.goto(url, wait_until=GOTO_WAIT[self.config.page_load_strategy])
         return self
 
     def reload(self) -> Self:
-        """Перезагружает текущую страницу с тем же ожиданием, что и ``open()``."""
+        """Reloads the current page with the same wait as open."""
         self._log.info("reloading page")
         self.page.reload(wait_until=GOTO_WAIT[self.config.page_load_strategy])
         return self
 
     def _shutdown(self) -> None:
-        """Закрывает браузер со всеми контекстами и страницами, останавливает Playwright, сбрасывает состояние."""
+        """Closes the browser, stops Playwright, and clears session state."""
         browser, self._browser = self._browser, None
         playwright, self._playwright = self._playwright, None
         self._page = self._context = None
@@ -188,7 +239,7 @@ class BaseDriver(ABC):
                 playwright.stop()
 
     def quit(self) -> None:
-        """Закрывает браузер и файл session.log; повторный вызов ничего не делает."""
+        """Closes the browser and session.log. A second call does nothing."""
         was_started = self.is_started
         try:
             self._shutdown()

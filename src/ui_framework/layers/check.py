@@ -66,7 +66,7 @@ def _dir_title(name: str) -> str:
 
 
 class _ClassTable:
-    """Слой каждого класса проекта по цепочке наследования до базовых классов фреймворка."""
+    """Maps each project class to a layer by walking its bases."""
 
     def __init__(self, modules: list[_Module]) -> None:
         self._bases: dict[str, tuple[str, ...]] = {}
@@ -95,7 +95,7 @@ class _ClassTable:
         return self._locations.get(name) == ""
 
     def resolve(self, node: ast.expr) -> tuple[str, Layer] | None:
-        """Имя и слой класса, на который ссылается выражение; None для всего остального."""
+        """Class name and layer referenced by an expression, or None."""
         name = _simple_name(node)
         if name is None:
             return None
@@ -185,6 +185,8 @@ class _ModuleChecker(ast.NodeVisitor):
             )
 
     def visit_Call(self, node: ast.Call) -> None:
+        if _simple_name(node.func) == "assert_that" and not self._in_asserts:
+            self._report(node, "assert", "assert_that is only allowed in the asserts layer")
         resolved = self._table.resolve(node.func)
         if resolved is not None:
             self._check_construction(node, *resolved)
@@ -210,7 +212,7 @@ class _ModuleChecker(ast.NodeVisitor):
 
 
 def check_project(root: str | Path) -> list[Violation]:
-    """Разбирает все ``*.py`` под ``root`` и возвращает нарушения правил слоёв; пустой список — нарушений нет."""
+    """Parses every Python file under root and returns layer violations."""
     modules = list(_iter_modules(Path(root).resolve()))
     table = _ClassTable(modules)
     violations: list[Violation] = []
@@ -220,7 +222,7 @@ def check_project(root: str | Path) -> list[Violation]:
 
 
 def ensure_architecture(root: str | Path) -> None:
-    """Поднимает ``ArchitectureError`` со списком нарушений, если ``check_project`` их нашла."""
+    """Raises ArchitectureError with the violations from check_project."""
     violations = check_project(root)
     if violations:
         lines = "\n".join(str(violation) for violation in violations)

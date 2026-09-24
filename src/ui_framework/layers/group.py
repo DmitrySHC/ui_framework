@@ -8,10 +8,9 @@ __all__ = ["AssertsGroup", "StepsGroup"]
 
 
 class StepsGroup(Orchestration):
-    """Пространство имён для шагов: ``BaseStep``, ``BaseComponentSteps`` и вложенные ``StepsGroup``.
+    """Namespace for steps, component steps, and nested step groups.
 
-    Корневой экземпляр (создан не из другого слоя) дополнительно принимает
-    ``BaseAssert``, ``AssertsGroup`` и объекты без слоя.
+    The root instance, built outside any layer, may also hold checks and plain objects.
     """
 
     _layer: ClassVar[Layer] = "steps"
@@ -25,6 +24,6 @@ class StepsGroup(Orchestration):
 
 
 class AssertsGroup(Orchestration):
-    """Пространство имён для проверок: ``BaseAssert``, ``BaseComponentAsserts`` и вложенные ``AssertsGroup``."""
+    """Namespace for checks, component checks, and nested check groups."""
 
     _layer: ClassVar[Layer] = "asserts"

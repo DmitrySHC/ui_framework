@@ -1,6 +1,6 @@
 from typing import Self
 
-from ui_framework import BaseComponentAsserts, BaseDriver
+from ui_framework import BaseComponentAsserts, BaseDriver, assert_that, contains_string
 
 from demo.steps.components.flash import FlashComponentSteps
 
@@ -13,8 +13,7 @@ class FlashComponentAsserts(BaseComponentAsserts):
         self.step = FlashComponentSteps(driver, base_url)
 
     def contains(self, text: str) -> Self:
-        flash = self.step.text()
-        assert text.lower() in flash.lower(), f"{text!r} not in flash {flash!r}"
+        assert_that(self.step.text().lower(), contains_string(text.lower()))
         return self
 
     def is_absent(self) -> Self:

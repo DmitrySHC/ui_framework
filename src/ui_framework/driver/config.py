@@ -19,13 +19,16 @@ from ..constants.driver import (
     DEFAULT_PAGE_LOAD_STRATEGY,
     DEFAULT_PAGE_LOAD_TIMEOUT,
     DEFAULT_SCRIPT_TIMEOUT,
+    DEFAULT_TRACE_MODE,
     DEFAULT_WINDOW_SIZE,
+    ColorScheme,
     PageLoadStrategy,
+    TraceMode,
 )
 from .exceptions import DriverConfigurationError
 from .profiles import DEVICE_PROFILES
 
-__all__ = ["DriverConfig"]
+__all__ = ["DriverConfig", "Geolocation"]
 
 PositiveSeconds = Annotated[float, Field(gt=0, strict=True)]
 PositiveInt = Annotated[int, Field(gt=0, strict=True)]
@@ -41,13 +44,21 @@ def _format_validation_error(error: ValidationError) -> str:
     return "; ".join(parts)
 
 
-class DriverConfig(BaseModel):
-    """Параметры запуска драйвера.
+class Geolocation(BaseModel):
+    """Latitude and longitude passed to the browser context."""
 
-    Неизвестное поле, неверный тип, неизвестное устройство или ``device`` без
-    ``is_mobile=True`` поднимают ``DriverConfigurationError``. ``is_mobile=True``
-    без ``device`` подставляет устройство по умолчанию. ``is_incognito`` на запуск
-    не влияет: каждый BrowserContext изолирован.
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    latitude: float
+    longitude: float
+
+
+class DriverConfig(BaseModel):
+    """How to launch the browser.
+
+    An unknown field, a bad type, an unknown device, or device without
+    is_mobile raises DriverConfigurationError. is_mobile without a device uses
+    the default device. is_incognito does nothing: each context is already isolated.
     """
 
     model_config = ConfigDict(frozen=True, extra="forbid")
@@ -63,6 +74,13 @@ class DriverConfig(BaseModel):
     page_load_timeout: PositiveSeconds = DEFAULT_PAGE_LOAD_TIMEOUT
     script_timeout: PositiveSeconds = DEFAULT_SCRIPT_TIMEOUT
     page_load_strategy: PageLoadStrategy = DEFAULT_PAGE_LOAD_STRATEGY
+    trace: TraceMode = DEFAULT_TRACE_MODE
+    storage_state: Path | None = None
+    locale: str | None = None
+    timezone_id: str | None = None
+    color_scheme: ColorScheme | None = None
+    geolocation: Geolocation | None = None
+    permissions: tuple[str, ...] = ()
 
     def __init__(self, **data: Any) -> None:
         try:

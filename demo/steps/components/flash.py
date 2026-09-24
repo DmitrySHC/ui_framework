@@ -8,7 +8,7 @@ __all__ = ["FlashComponentSteps"]
 
 
 class FlashComponentSteps(BaseComponentSteps):
-    """Действия с баннером ``#flash``."""
+    """Actions for the flash banner."""
 
     def __init__(self, driver: BaseDriver, base_url: str) -> None:
         super().__init__(driver, base_url)

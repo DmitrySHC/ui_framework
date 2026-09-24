@@ -4,8 +4,8 @@ __all__ = ["ConditionNotMatchedException", "ElementError"]
 
 
 class ElementError(FrameworkError):
-    """Элемент объявлен не с одним локатором или используется без страницы-владельца."""
+    """The element has the wrong locator, or it is used without a page."""
 
 
 class ConditionNotMatchedException(FrameworkError):
-    """``wait_*`` не дождался состояния элемента за отведённое время."""
+    """A wait did not see the expected element state in time."""

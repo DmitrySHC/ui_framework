@@ -99,6 +99,15 @@ def test_login(driver):
 
 Элементы — дескрипторы на классе страницы или компонента. `wait_*` и `click()`
 возвращают `self`. Таймаут ожидания — `ConditionNotMatchedException`.
+Поиск — ровно один: `css`, `id`, `xpath`, `name`, `class_name`, `tag` либо
+`role`, `by_label`, `placeholder`, `text`, `test_id`, `alt_text`, `title`.
+`Button(accessible_name="Login")` и `Link(accessible_name="Docs")` берут роль
+из класса. `name=` — по-прежнему HTML-атрибут.
+
+`DriverConfig.trace`: `off` (по умолчанию), `on`, `retain-on-failure`. Фикстура
+`driver` при падении пишет `failure.png`, а trace — `trace.zip` в каталог логов.
+`storage_state` подставляется в контекст; `save_storage_state(path)` снимает его.
+Туда же `locale`, `timezone_id`, `color_scheme`, `geolocation`, `permissions`.
 
 ## Слои тестового проекта
 
@@ -233,6 +242,15 @@ pytest_plugins = ("ui_framework.fixtures.driver",)
 
 Фикстуры: `webdriver_settings` → `webdriver_config` → `driver`.
 Драйвер стартует перед тестом и вызывает `quit()` после.
+
+Проверки пишутся через `assert_that` и матчеры Hamcrest (`equal_to`, `contains_string`, `ends_with` и остальные из `ui_framework`). `assert_that` разрешён только в `asserts/`.
+
+При падении теста фикстура прикладывает к Allure скриншот, `session.log`, `console.log` и `trace.zip`, если они есть. Отчёт собирается так:
+
+```powershell
+uv run pytest --alluredir=allure-results
+allure generate allure-results -o allure-report
+```
 
 ```python
 def test_login(driver):

@@ -1,6 +1,6 @@
 from typing import Self
 
-from ui_framework import BaseAssert, BaseDriver
+from ui_framework import BaseAssert, BaseDriver, assert_that, equal_to
 
 from demo.steps.dropdown import DropdownSteps
 
@@ -13,11 +13,9 @@ class DropdownAsserts(BaseAssert):
         self.step = DropdownSteps(driver, base_url)
 
     def selected_is(self, option: str) -> Self:
-        selected = self.step.selected()
-        assert selected == option, f"selected {selected!r}, expected {option!r}"
+        assert_that(self.step.selected(), equal_to(option))
         return self
 
     def heading_is(self, text: str) -> Self:
-        heading = self.step.heading()
-        assert heading == text, f"heading {heading!r}, expected {text!r}"
+        assert_that(self.step.heading(), equal_to(text))
         return self

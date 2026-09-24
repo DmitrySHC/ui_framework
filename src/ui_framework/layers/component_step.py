@@ -7,11 +7,10 @@ __all__ = ["BaseComponentSteps"]
 
 
 class BaseComponentSteps(Orchestration):
-    """Действия над общим фрагментом UI.
+    """Actions for one shared UI fragment.
 
-    Создаётся в конструкторе шага (или агрегатора шагов), которому фрагмент
-    нужен, либо в конструкторе парной ``BaseComponentAsserts``. Атрибуты —
-    только компоненты. Методы без ``@readonly`` недоступны из проверок.
+    Built by the step or group that needs it, or by its component check.
+    It holds only components. Methods without readonly are hidden from checks.
     """
 
     _layer: ClassVar[Layer] = "component_step"

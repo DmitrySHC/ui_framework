@@ -7,10 +7,9 @@ __all__ = ["BaseComponentAsserts"]
 
 
 class BaseComponentAsserts(Orchestration):
-    """Проверки общего фрагмента UI через ``@readonly``-методы его шага.
+    """Checks for one shared UI fragment.
 
-    Создаётся в конструкторе проверки (или агрегатора проверок), которой
-    фрагмент нужен. Единственный атрибут — ``BaseComponentSteps``.
+    Built by the assert or group that needs it. It holds only the component step.
     """
 
     _layer: ClassVar[Layer] = "component_assert"

@@ -6,7 +6,7 @@ __all__ = ["DEVICE_PROFILES", "DeviceProfile"]
 
 @dataclass(frozen=True, slots=True)
 class DeviceProfile:
-    """Метрики и User-Agent устройства для мобильной эмуляции."""
+    """Viewport, scale, and user agent for a mobile device."""
 
     name: str
     width: int
@@ -16,7 +16,7 @@ class DeviceProfile:
     touch: bool = True
 
     def context_options(self) -> dict[str, Any]:
-        """Аргументы Browser.new_context(...) для эмуляции этого устройства."""
+        """Keyword arguments for new_context that emulate this device."""
         return {
             "viewport": {"width": self.width, "height": self.height},
             "device_scale_factor": self.pixel_ratio,

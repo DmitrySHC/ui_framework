@@ -7,11 +7,10 @@ __all__ = ["BaseAssert"]
 
 
 class BaseAssert(Orchestration):
-    """Проверки состояния через ``@readonly``-методы шага своего домена.
+    """Checks state through readonly methods of its step.
 
-    В ``__init__`` создаёт шаг и, если нужны, проверки компонентов.
-    ``AssertionError`` пробрасывается как есть; вызов действия шага, клика,
-    ``fill`` или ``open`` поднимает ``LayerError``.
+    Init creates the step and any component checks. AssertionError is kept.
+    A click, fill, open, or other action raises LayerError.
     """
 
     _layer: ClassVar[Layer] = "assert"

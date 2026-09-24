@@ -7,7 +7,7 @@ __all__ = ["FormsSteps"]
 
 
 class FormsSteps(StepsGroup):
-    """Шаги страниц с формами: ``dropdown`` и ``checkboxes``."""
+    """Steps for the form pages: dropdown and checkboxes."""
 
     def __init__(self, driver: BaseDriver, base_url: str) -> None:
         super().__init__(driver, base_url)

@@ -1,9 +1,9 @@
 import pytest
 
-from ui_framework import BaseElement, ConditionNotMatchedException, ElementError
+from ui_framework import BaseElement, Button, ConditionNotMatchedException, ElementError, Text, TextInput, url
 from ui_framework.driver import ChromeDriver
 
-from .sample_page import SamplePage
+from .sample_page import SAMPLE_HTML, SamplePage
 
 _BASE = "https://example.com"
 _SHORT = 0.4
@@ -14,6 +14,19 @@ def test_exactly_one_locator_required():
         BaseElement()
     with pytest.raises(ElementError, match="exactly one locator"):
         BaseElement(css="#a", id="b")
+    with pytest.raises(ElementError, match="accessible_name is only valid with role"):
+        BaseElement(css="#a", accessible_name="Go")
+    with pytest.raises(ElementError, match="exact is only valid"):
+        BaseElement(css="#a", exact=True)
+    with pytest.raises(ElementError, match="has no role"):
+        Text(accessible_name="Widgets")
+
+
+@url(SAMPLE_HTML.as_uri())
+class AccessiblePage(SamplePage):
+    go = Button(accessible_name="Go")
+    user = TextInput(by_label="User")
+    heading_role = Text(role="heading", accessible_name="Widgets")
 
 
 def test_label_defaults_to_attribute_name():
@@ -58,6 +71,16 @@ def test_wait_clickable_then_click(driver: ChromeDriver):
     page = SamplePage(driver, _BASE)
     page.open()
     page.submit.wait_clickable().click()
+    assert page.status.text == "Clicked"
+
+
+def test_role_and_label_locators(driver: ChromeDriver):
+    page = AccessiblePage(driver, _BASE)
+    page.open()
+    assert page.go.text.strip() == "Go"
+    assert page.user.locator == ("label", "User")
+    assert page.heading_role.text == "Widgets"
+    page.go.click()
     assert page.status.text == "Clicked"
 
 

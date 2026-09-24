@@ -23,16 +23,16 @@ _counter = itertools.count(1)
 
 @dataclass(frozen=True, slots=True)
 class ConsoleEntry:
-    """Сообщение консоли страницы или необработанная JS-ошибка."""
+    """A console message or an uncaught page error."""
 
     level: str
     message: str
 
 
 class DriverLogs:
-    """Каталог логов одного запуска: browser.log, console.log, session.log и логгер, пишущий в session.log.
+    """Log directory for one run: browser.log, console.log, and session.log.
 
-    Каталог создаётся в конструкторе.
+    The directory is created in the constructor.
     """
 
     def __init__(self, browser_name: str, logs_root: str | Path) -> None:
@@ -80,7 +80,7 @@ class DriverLogs:
             stream.writelines(CONSOLE_LOG_LINE.format(level=entry.level, message=entry.message) for entry in entries)
 
     def close(self) -> None:
-        """Снимает и закрывает файловые обработчики логгера; повторный вызов ничего не делает."""
+        """Closes the log handlers. A second call does nothing."""
         for handler in list(self.logger.handlers):
             self.logger.removeHandler(handler)
             handler.close()
