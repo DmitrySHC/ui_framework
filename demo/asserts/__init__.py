@@ -8,7 +8,7 @@ __all__ = ["Asserts"]
 
 
 class Asserts(AssertsGroup):
-    """Все проверки проекта: ``auth``, группа ``forms`` и ``tables``."""
+    """Все проверки проекта: ``auth``, ``forms`` и ``tables``."""
 
     def __init__(self, driver: BaseDriver, base_url: str) -> None:
         super().__init__(driver, base_url)

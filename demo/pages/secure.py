@@ -26,6 +26,3 @@ class SecurePage(BasePage):
 
     def heading_text(self) -> str:
         return self.heading.text
-
-    def flash_text(self) -> str:
-        return self.flash.message()

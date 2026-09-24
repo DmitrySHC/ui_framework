@@ -8,7 +8,7 @@ __all__ = ["AssertsGroup", "StepsGroup"]
 
 
 class StepsGroup(Orchestration):
-    """Пространство имён для шагов: атрибуты — ``BaseStep`` и вложенные ``StepsGroup``.
+    """Пространство имён для шагов: ``BaseStep``, ``BaseComponentSteps`` и вложенные ``StepsGroup``.
 
     Корневой экземпляр (создан не из другого слоя) дополнительно принимает
     ``BaseAssert``, ``AssertsGroup`` и объекты без слоя.
@@ -25,6 +25,6 @@ class StepsGroup(Orchestration):
 
 
 class AssertsGroup(Orchestration):
-    """Пространство имён для проверок: атрибуты — ``BaseAssert`` и вложенные ``AssertsGroup``."""
+    """Пространство имён для проверок: ``BaseAssert``, ``BaseComponentAsserts`` и вложенные ``AssertsGroup``."""
 
     _layer: ClassVar[Layer] = "asserts"

@@ -8,7 +8,7 @@ __all__ = ["Steps"]
 
 
 class Steps(StepsGroup):
-    """Все шаги проекта: ``auth``, группа ``forms`` и ``tables``."""
+    """Все шаги проекта: ``auth``, ``forms`` и ``tables``."""
 
     def __init__(self, driver: BaseDriver, base_url: str) -> None:
         super().__init__(driver, base_url)

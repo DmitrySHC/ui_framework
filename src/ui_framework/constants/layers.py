@@ -1,7 +1,16 @@
 from dataclasses import dataclass
 from typing import Literal
 
-Layer = Literal["component", "page", "step", "assert", "steps", "asserts"]
+Layer = Literal[
+    "component",
+    "page",
+    "component_step",
+    "step",
+    "component_assert",
+    "assert",
+    "steps",
+    "asserts",
+]
 Kind = Literal["build", "call"]
 
 TESTS_DIR = "tests"
@@ -36,6 +45,7 @@ class LayerSpec:
     elements: bool = False
     extra_on_root: bool = False
     root: bool = False
+    read_only: bool = False
 
     def lives_in(self, top_dir: str) -> bool:
         return top_dir == self.directory or (self.root and top_dir == "")
@@ -55,12 +65,16 @@ class LayerSpec:
         allowed = " or ".join(self.children) if self.children else "nothing"
         return f"{self.name} may only hold {allowed}"
 
+    @property
+    def guards_writes(self) -> bool:
+        return self.call_scoped and self.orchestration and not self.read_only
+
 
 BASE_COMPONENT = LayerSpec(
     name="component",
     directory="pages",
     base="BaseComponent",
-    parents=("page",),
+    parents=("page", "step", "component_step"),
     call_scoped=True,
     elements=True,
 )
@@ -72,31 +86,51 @@ BASE_PAGE = LayerSpec(
     call_scoped=True,
     elements=True,
 )
+BASE_COMPONENT_STEP = LayerSpec(
+    name="component_step",
+    directory="steps",
+    base="BaseComponentSteps",
+    parents=("step", "component_assert", "steps"),
+    children=("component",),
+    call_scoped=True,
+    orchestration=True,
+)
 BASE_STEP = LayerSpec(
     name="step",
     directory="steps",
     base="BaseStep",
     parents=("assert", "steps"),
-    children=("page",),
+    children=("page", "component", "component_step"),
     call_scoped=True,
     orchestration=True,
+)
+BASE_COMPONENT_ASSERT = LayerSpec(
+    name="component_assert",
+    directory="asserts",
+    base="BaseComponentAsserts",
+    parents=("assert", "asserts"),
+    children=("component_step",),
+    call_scoped=True,
+    orchestration=True,
+    read_only=True,
 )
 BASE_ASSERT = LayerSpec(
     name="assert",
     directory="asserts",
     base="BaseAssert",
     parents=("asserts",),
-    children=("step",),
+    children=("step", "component_assert"),
     call_scoped=True,
     orchestration=True,
     extra_on_root=True,
+    read_only=True,
 )
 STEPS_GROUP = LayerSpec(
     name="steps",
     directory="steps",
     base="StepsGroup",
     parents=("steps",),
-    children=("step", "steps"),
+    children=("step", "component_step", "steps"),
     orchestration=True,
     root=True,
 )
@@ -105,7 +139,7 @@ ASSERTS_GROUP = LayerSpec(
     directory="asserts",
     base="AssertsGroup",
     parents=("asserts",),
-    children=("assert", "asserts"),
+    children=("assert", "component_assert", "asserts"),
     orchestration=True,
     extra_on_root=True,
 )
@@ -113,7 +147,9 @@ ASSERTS_GROUP = LayerSpec(
 LAYERS: tuple[LayerSpec, ...] = (
     BASE_COMPONENT,
     BASE_PAGE,
+    BASE_COMPONENT_STEP,
     BASE_STEP,
+    BASE_COMPONENT_ASSERT,
     BASE_ASSERT,
     STEPS_GROUP,
     ASSERTS_GROUP,
@@ -126,8 +162,12 @@ def spec(layer: Layer) -> LayerSpec:
             return BASE_COMPONENT
         case "page":
             return BASE_PAGE
+        case "component_step":
+            return BASE_COMPONENT_STEP
         case "step":
             return BASE_STEP
+        case "component_assert":
+            return BASE_COMPONENT_ASSERT
         case "assert":
             return BASE_ASSERT
         case "steps":

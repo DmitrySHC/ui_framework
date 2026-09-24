@@ -2,7 +2,7 @@ import pytest
 
 from ui_framework import AssertsGroup, BaseDriver, ChromeDriver, LayerError, StepsGroup
 
-from .sample_layers import BASE, Asserts, Steps, WidgetAsserts, WidgetSteps
+from .sample_layers import BASE, Asserts, BadgeComponentSteps, Steps, WidgetAsserts, WidgetSteps
 
 
 class NestedSteps(StepsGroup):
@@ -27,6 +27,12 @@ class AssertsWithValue(AssertsGroup):
     def __init__(self, driver: BaseDriver, base_url: str) -> None:
         super().__init__(driver, base_url)
         self.timeout = 5
+
+
+class StepsWithComponentSteps(StepsGroup):
+    def __init__(self, driver: BaseDriver, base_url: str) -> None:
+        super().__init__(driver, base_url)
+        self.badge = BadgeComponentSteps(driver, base_url)
 
 
 def test_group_holds_steps(idle_driver: ChromeDriver):
@@ -58,3 +64,8 @@ def test_root_steps_group_holds_asserts(idle_driver: ChromeDriver):
 def test_asserts_group_rejects_plain_value(idle_driver: ChromeDriver):
     with pytest.raises(LayerError, match="may only hold"):
         AssertsWithValue(idle_driver, BASE)
+
+
+def test_group_holds_component_step(idle_driver: ChromeDriver):
+    group = StepsWithComponentSteps(idle_driver, BASE)
+    assert isinstance(group.badge, BadgeComponentSteps)

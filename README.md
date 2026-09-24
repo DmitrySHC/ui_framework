@@ -102,40 +102,70 @@ def test_login(driver):
 
 ## Слои тестового проекта
 
-Поверх страниц фреймворк задаёт четыре доменных слоя и корневой агрегатор.
+Поверх страниц фреймворк задаёт слои сценария и корневой агрегатор.
 Рабочий пример — каталог [`demo/`](demo/README.md).
 
 ```
 tests  →  app.steps.*  /  app.asserts.*
              │                 │
-          StepsGroup       AssertsGroup        (агрегаторы, вложенные по иерархии)
+          StepsGroup       AssertsGroup
              │                 │
-          BaseStep  ←──── BaseAssert           (проверка создаёт шаг своего домена)
-             │
-          BasePage  →  BaseComponent           (композиция в конструкторах)
+          BaseStep  ←──── BaseAssert
+             │                 │
+     BasePage / BaseComponent / BaseComponentSteps
+                                   ↑
+                          BaseComponentAsserts
 ```
 
 | Слой | База | Создаётся только в | Хранит |
 | --- | --- | --- | --- |
-| компонент | `BaseComponent` | конструкторе страницы | — |
+| компонент | `BaseComponent` | конструкторе страницы, шага или шага компонента | — |
 | страница | `BasePage` | конструкторе шага | компоненты |
-| шаг | `BaseStep` | конструкторе проверки или агрегатора шагов | страницы |
-| проверка | `BaseAssert` | конструкторе агрегатора проверок или корневого `StepsGroup` | один шаг |
-| агрегаторы | `StepsGroup` / `AssertsGroup` | родительском агрегаторе или на верхнем уровне | шаги/проверки и под-агрегаторы |
+| шаг компонента | `BaseComponentSteps` | конструкторе шага, агрегатора шагов или проверки компонента | компоненты |
+| шаг | `BaseStep` | конструкторе проверки или агрегатора шагов | страницы, компоненты или шаги компонентов |
+| проверка компонента | `BaseComponentAsserts` | конструкторе проверки или агрегатора проверок | шаг компонента |
+| проверка | `BaseAssert` | конструкторе агрегатора проверок или корневого `StepsGroup` | шаг и проверки компонентов |
+| агрегаторы | `StepsGroup` / `AssertsGroup` | родительском агрегаторе или на верхнем уровне | шаги/проверки, шаги/проверки компонентов и под-агрегаторы |
 | корневой агрегатор | `StepsGroup` | верхнем уровне (фикстура) | `steps`, `asserts` и любые объекты без слоя |
 
 ```python
+class FlashComponentSteps(BaseComponentSteps):
+    def __init__(self, driver, base_url):
+        super().__init__(driver, base_url)
+        self.flash = FlashMessage(driver)
+
+    def dismiss(self):
+        self.flash.close()
+        return self
+
+    @readonly
+    def text(self) -> str:
+        return self.flash.message()
+
+
+class FlashComponentAsserts(BaseComponentAsserts):
+    def __init__(self, driver, base_url):
+        super().__init__(driver, base_url)
+        self.step = FlashComponentSteps(driver, base_url)
+
+    def contains(self, text):
+        flash = self.step.text()
+        assert text.lower() in flash.lower()
+        return self
+
+
 class AuthSteps(BaseStep):
     def __init__(self, driver, base_url):
         super().__init__(driver, base_url)
-        self.login = LoginPage(driver, base_url)      # несколько страниц — нормально
+        self.login = LoginPage(driver, base_url)
         self.secure = SecurePage(driver, base_url)
+        self.flash = FlashComponentSteps(driver, base_url)
 
-    def login_as(self, user, password):               # действие
+    def login_as(self, user, password):
         self.login.open().sign_in(user, password)
         return self
 
-    @readonly                                          # чтение состояния — доступно из asserts
+    @readonly
     def secure_heading(self) -> str:
         return self.secure.wait_loaded().heading_text()
 
@@ -144,6 +174,7 @@ class AuthAsserts(BaseAssert):
     def __init__(self, driver, base_url):
         super().__init__(driver, base_url)
         self.step = AuthSteps(driver, base_url)
+        self.flash = FlashComponentAsserts(driver, base_url)
 
     def logged_in(self):
         assert "Secure Area" in self.step.secure_heading()
@@ -160,19 +191,22 @@ class TheInternet(StepsGroup):
 def test_login(app):
     app.steps.auth.login_as("tomsmith", "SuperSecretPassword!")
     app.asserts.auth.logged_in()
+    app.asserts.auth.flash.contains("logged into a secure area")
 ```
 
 Правила проверяются в рантайме и поднимают `LayerError`:
 
-- место создания: компонент вне конструктора страницы, страница вне конструктора
-  шага, шаг вне проверки/агрегатора, проверка и агрегатор проверок вне
-  агрегатора проверок или корневого агрегатора шагов;
-- состав: шаг хранит только страницы, проверка — только шаг, вложенный агрегатор —
-  только своих детей, корневой `StepsGroup` — шаги, проверки и объекты без слоя;
-- элементы и драйвер: у страницы, созданной под шагом, `driver` (а через него —
-  все элементы и сырой `Page`) доступен только её методам и методам её
-  компонентов — `self.page.username.fill(...)` или `self.page.driver` из шага
-  поднимают `LayerError`;
+- место создания: компонент вне конструктора страницы, шага или шага компонента;
+  шаг компонента вне шага / агрегатора шагов / проверки компонента; страница вне
+  конструктора шага; шаг вне проверки/агрегатора; проверка и проверка компонента
+  вне агрегатора проверок (проверка — ещё и вне корневого агрегатора шагов);
+- состав: шаг хранит страницы, компоненты или шаги компонентов; проверка — шаг и
+  проверки компонентов; шаг компонента — только компоненты; проверка компонента —
+  только шаг компонента; вложенный агрегатор — только своих детей; корневой
+  `StepsGroup` — шаги, проверки и объекты без слоя;
+- элементы и драйвер: у страницы или компонента, созданных под шагом, `driver` (а через него —
+  все элементы и сырой `Page`) доступен только методам страниц и компонентов —
+  `self.page.username.fill(...)` или `self.page.driver` из шага поднимают `LayerError`;
 - asserts не меняют состояние: из проверки доступны только методы шага с
   `@readonly`; клик, `fill`, `check`, `select_*`, `open`, `refresh` внутри вызова
   проверки поднимают `LayerError`, даже если спрятаны за `@readonly`;

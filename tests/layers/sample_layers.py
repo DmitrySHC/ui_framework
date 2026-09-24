@@ -4,6 +4,8 @@ from ui_framework import (
     AssertsGroup,
     BaseAssert,
     BaseComponent,
+    BaseComponentAsserts,
+    BaseComponentSteps,
     BaseDriver,
     BasePage,
     BaseStep,
@@ -63,12 +65,44 @@ class WidgetsPage(BasePage):
         return self.badge.text() == "Ready"
 
 
+class BadgeComponentSteps(BaseComponentSteps):
+    def __init__(self, driver: BaseDriver, base_url: str) -> None:
+        super().__init__(driver, base_url)
+        self.badge = StatusBadge(driver)
+
+    @readonly
+    def text(self) -> str:
+        return self.badge.text()
+
+    def poke(self) -> Self:
+        return self
+
+    def asserting(self) -> None:
+        raise AssertionError("a component step must not assert")
+
+
+class BadgeComponentAsserts(BaseComponentAsserts):
+    def __init__(self, driver: BaseDriver, base_url: str) -> None:
+        super().__init__(driver, base_url)
+        self.step = BadgeComponentSteps(driver, base_url)
+
+    def text_is(self, text: str) -> Self:
+        value = self.step.text()
+        assert value == text, f"badge {value!r}, expected {text!r}"
+        return self
+
+    def tries_to_poke(self) -> Self:
+        self.step.poke()
+        return self
+
+
 class WidgetSteps(BaseStep):
     """Открывает ``WidgetsPage``, жмёт кнопку, заполняет поле и читает состояние страницы."""
 
     def __init__(self, driver: BaseDriver, base_url: str) -> None:
         super().__init__(driver, base_url)
         self.page = WidgetsPage(driver, base_url)
+        self.badge = BadgeComponentSteps(driver, base_url)
 
     def open(self) -> Self:
         self.page.open()
@@ -109,6 +143,7 @@ class WidgetAsserts(BaseAssert):
     def __init__(self, driver: BaseDriver, base_url: str) -> None:
         super().__init__(driver, base_url)
         self.step = WidgetSteps(driver, base_url)
+        self.badge = BadgeComponentAsserts(driver, base_url)
 
     def status_is(self, text: str) -> Self:
         status = self.step.status()

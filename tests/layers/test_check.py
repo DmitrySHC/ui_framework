@@ -234,6 +234,125 @@ def test_page_built_outside_step_constructor(tmp_path: Path):
     assert _rules(tmp_path) == {"construction"}
 
 
+def test_component_built_in_step_constructor(tmp_path: Path):
+    _project(tmp_path)
+    _write(
+        tmp_path,
+        "pages/badge.py",
+        """
+        from ui_framework import BaseComponent, Text
+
+
+        class StatusBadge(BaseComponent):
+            status = Text(id="status")
+        """,
+    )
+    _write(
+        tmp_path,
+        "steps/badge.py",
+        """
+        from ui_framework import BaseStep
+
+        from pages.badge import StatusBadge
+
+
+        class BadgeSteps(BaseStep):
+            def __init__(self, driver, base_url):
+                super().__init__(driver, base_url)
+                self.badge = StatusBadge(driver)
+        """,
+    )
+    assert _rules(tmp_path) == set()
+
+
+def test_component_built_outside_page_or_step_constructor(tmp_path: Path):
+    _project(tmp_path)
+    _write(
+        tmp_path,
+        "pages/badge.py",
+        """
+        from ui_framework import BaseComponent, Text
+
+
+        class StatusBadge(BaseComponent):
+            status = Text(id="status")
+        """,
+    )
+    _write(
+        tmp_path,
+        "steps/later.py",
+        """
+        from ui_framework import BaseStep
+
+        from pages.badge import StatusBadge
+
+
+        class LaterSteps(BaseStep):
+            def make_badge(self, driver):
+                return StatusBadge(driver)
+        """,
+    )
+    assert _rules(tmp_path) == {"construction"}
+
+
+def test_component_step_built_in_step_constructor(tmp_path: Path):
+    _project(tmp_path)
+    _write(
+        tmp_path,
+        "pages/badge.py",
+        """
+        from ui_framework import BaseComponent, Text
+
+
+        class StatusBadge(BaseComponent):
+            status = Text(id="status")
+        """,
+    )
+    _write(
+        tmp_path,
+        "steps/badge.py",
+        """
+        from ui_framework import BaseComponentSteps, BaseStep
+
+        from pages.badge import StatusBadge
+
+
+        class BadgeSteps(BaseComponentSteps):
+            def __init__(self, driver, base_url):
+                super().__init__(driver, base_url)
+                self.badge = StatusBadge(driver)
+
+
+        class HostSteps(BaseStep):
+            def __init__(self, driver, base_url):
+                super().__init__(driver, base_url)
+                self.badge = BadgeSteps(driver, base_url)
+        """,
+    )
+    assert _rules(tmp_path) == set()
+
+
+def test_component_step_built_outside_constructor(tmp_path: Path):
+    _project(tmp_path)
+    _write(
+        tmp_path,
+        "steps/later.py",
+        """
+        from ui_framework import BaseComponentSteps, BaseStep
+
+
+        class BadgeSteps(BaseComponentSteps):
+            pass
+
+
+        class LaterSteps(BaseStep):
+            def make_badge(self, driver, base_url):
+                return BadgeSteps(driver, base_url)
+        """,
+    )
+    assert _rules(tmp_path) == {"construction"}
+
+
 def test_driver_access_outside_pages(tmp_path: Path):
     _project(tmp_path)
     _write(

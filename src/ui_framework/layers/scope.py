@@ -53,7 +53,7 @@ def is_root_build() -> bool:
 
 
 def readonly[F: Callable[..., Any]](func: F) -> F:
-    """Помечает метод шага как чтение состояния: его можно вызывать из ``BaseAssert``."""
+    """Помечает метод как чтение состояния: его можно вызывать из слоя проверок."""
     setattr(func, _READONLY_MARK, True)
     return func
 
@@ -70,8 +70,8 @@ def mutating[F: Callable[..., Any]](func: F) -> F:
 
 
 def ensure_mutable(what: str) -> None:
-    """Поднимает ``LayerError``, если в стеке вызовов есть метод ``BaseAssert``."""
-    if any(frame.layer == "assert" for frame in _stack.get()):
+    """Поднимает ``LayerError``, если в стеке вызовов есть слой проверок."""
+    if any(spec(frame.layer).read_only for frame in _stack.get()):
         raise LayerError(f"{what}: asserts layer is read-only")
 
 
@@ -97,7 +97,7 @@ def _check_parent(name: str, layer: Layer) -> None:
 
 
 def _wrap_function(func: Callable[..., Any], layer: Layer, *, guard_mutation: bool) -> Callable[..., Any]:
-    converts_assertions = layer != "assert"
+    converts_assertions = not spec(layer).read_only
 
     @functools.wraps(func)
     def wrapper(self: Any, *args: Any, **kwargs: Any) -> Any:
@@ -116,15 +116,16 @@ def _wrap_function(func: Callable[..., Any], layer: Layer, *, guard_mutation: bo
 
 
 def _wrap_members(cls: type, namespace: Mapping[str, Any], layer: Layer) -> None:
+    actions = spec(layer).guards_writes
     for name, member in namespace.items():
         if name.startswith("_"):
             continue
         if isinstance(member, property) and member.fget is not None:
             fget = _wrap_function(member.fget, layer, guard_mutation=False)
-            fset = None if member.fset is None else _wrap_function(member.fset, layer, guard_mutation=layer == "step")
+            fset = None if member.fset is None else _wrap_function(member.fset, layer, guard_mutation=actions)
             setattr(cls, name, property(fget, fset, member.fdel, member.__doc__))
         elif isinstance(member, FunctionType):
-            guard = layer == "step" and not getattr(member, _READONLY_MARK, False)
+            guard = actions and not getattr(member, _READONLY_MARK, False)
             setattr(cls, name, _wrap_function(member, layer, guard_mutation=guard))
 
 
@@ -132,7 +133,7 @@ class LayerMeta(ABCMeta):
     """Ведёт стек кадров слоёв.
 
     При создании класса оборачивает его публичные методы и свойства: вызов кладёт
-    кадр ``call``, а ``AssertionError`` вне слоя ``assert`` превращает в ``LayerError``.
+    кадр ``call``, а ``AssertionError`` вне слоя проверок превращает в ``LayerError``.
     При создании экземпляра сверяет верх стека с ``parents`` слоя, держит кадр
     ``build`` на время ``__init__`` и затем вызывает ``_layer_built``. Для классов с
     ``_layer = None`` ничего не делает.
